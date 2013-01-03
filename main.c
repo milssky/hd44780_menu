@@ -12,8 +12,8 @@
 
 void GPIO_Set(void);
 void menu(void);
-int set_power(void);
-int set_impulses(void);
+void set_power(void);
+void set_impulses(void);
 int check_button(int button);
 void delay_ms(int msec);
 char* itoa(int n);
@@ -27,6 +27,8 @@ char* menu_string[] = {"Power","Steps"};
 int menu_size = 1; //0+1 = 2 пункта
 char* qbuf;
 int in_menu = 1;
+int power_percents = 0;
+int impulses_count = 0;
 
 int main(void)
 {
@@ -115,7 +117,7 @@ int check_button(int button)
 {
 	if(!GPIO_ReadInputDataBit(BUT_PORT,button))
 	{
-		delay_ms(100);
+		delay_ms(5);
 		if(!GPIO_ReadInputDataBit(BUT_PORT,button))
 		{
 			return 1;
@@ -129,7 +131,7 @@ void delay_ms(int msec)
 	for( ; msec*1000*8 < 0; msec--); // при 8 ћ√ц
 }
 
-int set_power(void)
+void set_power(void)
 {
 	int need_up = 1;
 	int i = 0;
@@ -160,7 +162,36 @@ int set_power(void)
 
 int set_impulses(void)
 {
+	lcd_clear();
 	lcd_out("hello");
 	return 1;
 }
 
+char* itoa( int n )
+{
+register int r, k;
+int flag = 0;
+int next = 0;
+char* s;
+   if (n < 0) {
+      s[next++] = '-';
+      n = -n;
+   }
+   if (n == 0) {
+        s[next++] = 0x30;
+   } else {
+        k = 10000;
+        while (k > 0) {
+             r = n / k;
+             if (flag || r > 0) {
+                s[next++] = 0x30 + r;
+                flag = 1;
+             }
+             n -= r * k;
+             k = k / 10;
+         }
+   }
+   s[next] = 0;
+
+   return s;
+}
