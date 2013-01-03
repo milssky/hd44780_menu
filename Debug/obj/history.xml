@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc 4.7.2 mingw32 -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -O0 -g -c -DSTM32F10X_MD_VL -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -DSTM32F100RB -I. -Istm_lib -Istm_lib\inc -Icmsis_boot -Icmsis -Ihd44780_driver">
+      <target file="stm32f10x_rcc.o" lastModified="13bd8101937">
+         <source file="..\..\stm_lib\src\stm32f10x_rcc.c" lastModified="13bae19a5a9"/>
+      </target>
+      <target file="core_cm3.o" lastModified="13bd81016f3">
+         <source file="..\..\cmsis\core_cm3.c" lastModified="13bae19a665"/>
+      </target>
+      <target file="hd44780_driver.o" lastModified="13bd81017be">
+         <source file="..\..\hd44780_driver\hd44780_driver.c" lastModified="13ada76a6e0"/>
+      </target>
+      <target file="misc.o" lastModified="13bd8101992">
+         <source file="..\..\stm_lib\src\misc.c" lastModified="13bae19e792"/>
+      </target>
+      <target file="system_stm32f10x.o" lastModified="13bd810174d">
+         <source file="..\..\cmsis_boot\system_stm32f10x.c" lastModified="13bae19a62a"/>
+      </target>
+      <target file="startup_stm32f10x_md_vl.o" lastModified="13bd81016a4">
+         <source file="..\..\cmsis_boot\startup\startup_stm32f10x_md_vl.c" lastModified="13bae19a60b"/>
+      </target>
+      <target file="main.o" lastModified="13bd81018a9">
+         <source file="..\..\main.c" lastModified="13bd8101456"/>
+      </target>
+      <target file="stm32f10x_gpio.o" lastModified="13bd8101844">
+         <source file="..\..\stm_lib\src\stm32f10x_gpio.c" lastModified="13bae19a7c5"/>
+      </target>
+   </processor>
+</history>
