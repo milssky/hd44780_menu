@@ -12,7 +12,7 @@
 
 void GPIO_Set(void);
 void menu(void);
-void set_power(void);
+int set_power(void);
 void set_impulses(void);
 int check_button(int button);
 void delay_ms(int msec);
@@ -115,15 +115,23 @@ void menu(void)
 
 int check_button(int button)
 {
-	if(!GPIO_ReadInputDataBit(BUT_PORT,button))
+	/*
+	 * Ћогика следующа€: если кнопка button нажата,
+	 * то ждем 10 мс и снова провер€ем ее на нажатие, если статус ее не изменилс€,
+	 * то выставл€ем флаг 1, показывающий, что кнопка нажата
+	 */
+	if(!GPIO_ReadInputDataBit(BUT_PORT ,button))
 	{
-		delay_ms(5);
-		if(!GPIO_ReadInputDataBit(BUT_PORT,button))
-		{
-			return 1;
-		}
+		delay_ms(10);
+	} else {
+		return 0;
 	}
-	return 0;
+	if(!GPIO_ReadInputDataBit(BUT_PORT, button))
+	{
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 void delay_ms(int msec)
@@ -131,7 +139,7 @@ void delay_ms(int msec)
 	for( ; msec*1000*8 < 0; msec--); // при 8 ћ√ц
 }
 
-void set_power(void)
+int set_power(void)
 {
 	int need_up = 1;
 	int i = 0;
@@ -160,11 +168,12 @@ void set_power(void)
 	return i;
 }
 
-int set_impulses(void)
+void set_impulses(void)
 {
 	lcd_clear();
 	lcd_out("hello");
-	return 1;
+
+
 }
 
 char* itoa( int n )
