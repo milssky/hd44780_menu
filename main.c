@@ -136,7 +136,7 @@ int check_button(int button)
 
 void delay_ms(int msec)
 {
-	for( ; msec*1000*8 < 0; msec--); // ןנט 8 ÌÃצ
+	for( ; msec*1000*8 < 0; msec--); // ןנט 8 ÌÃצ ץוץ
 }
 
 int set_power(void)
