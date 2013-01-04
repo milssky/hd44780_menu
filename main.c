@@ -146,7 +146,7 @@ int set_power(void)
 	in_menu = 0;
 	lcd_clear();
 	lcd_out("Percents");
-	while(GPIO_ReadInputDataBit(BUT_PORT, BUT_OK))
+	while(check_button(BUT_OK))
 	{
 		if(need_up == 1)
 		{
