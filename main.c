@@ -55,7 +55,7 @@ void GPIO_Set(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	// настройка кнопки вниз и вверх
-	GPIO_InitStructure.GPIO_Pin = BUT_DOWN | BUT_UP | BUT_BACK | BUT_OK;
+	GPIO_InitStructure.GPIO_Pin = BUT_DOWN | BUT_UP | BUT_BACK | BUT_OK | BUT_START;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
