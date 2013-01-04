@@ -8,6 +8,8 @@
 #define BUT_BACK GPIO_Pin_3
 #define BUT_PORT GPIOB
 
+#define BUT_START GPIO_Pin_7
+
 #define BUT_OK GPIO_Pin_0 // PA0 for debuffing
 
 void GPIO_Set(void);
@@ -69,42 +71,45 @@ void GPIO_Set(void)
 
 void menu(void)
 {
-	if((need_update == 1) && (in_menu == 1))
+	while(!check_button(BUT_START))
 	{
-		lcd_clear();
-		lcd_out(menu_string[current_menu_position]);
-		need_update = 0;
-	}
-	if(check_button(BUT_DOWN) && (in_menu == 1))
-	{
-		current_menu_position++;
-		if(current_menu_position > menu_size)
+		if((need_update == 1) && (in_menu == 1))
 		{
-			current_menu_position = 0;
+			lcd_clear();
+			lcd_out(menu_string[current_menu_position]);
+			need_update = 0;
 		}
-		need_update = 1;
-	}
-
-	if(check_button(BUT_UP) && (in_menu == 1))
+		if(check_button(BUT_DOWN) && (in_menu == 1))
 		{
-			current_menu_position--;
-			if(current_menu_position < 0)
+			current_menu_position++;
+			if(current_menu_position > menu_size)
 			{
-				current_menu_position = 1;
+				current_menu_position = 0;
 			}
 			need_update = 1;
 		}
 
-	if(!GPIO_ReadInputDataBit(GPIOB, BUT_ENTER) && (in_menu == 1))
-		{
-			lcd_clear();
-			switch(current_menu_position)
+		if(check_button(BUT_UP) && (in_menu == 1))
 			{
-			case 0: set_power();
-			case 1: set_impulses();
+				current_menu_position--;
+				if(current_menu_position < 0)
+				{
+					current_menu_position = 1;
+				}
+				need_update = 1;
 			}
 
-		}
+		if(!GPIO_ReadInputDataBit(GPIOB, BUT_ENTER) && (in_menu == 1))
+			{
+				lcd_clear();
+				switch(current_menu_position)
+				{
+				case 0: set_power();
+				case 1: set_impulses();
+				}
+
+			}
+	}
 	/*if(!GPIO_ReadInputDataBit(GPIOB, BUT_BACK) && (in_menu == 1))
 	{
 		need_update = 1;
