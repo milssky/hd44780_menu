@@ -203,7 +203,7 @@ char* itoa( int n )
 register int r, k;
 int flag = 0;
 int next = 0;
-char* s;
+char* s = "";
    if (n < 0) {
       s[next++] = '-';
       n = -n;

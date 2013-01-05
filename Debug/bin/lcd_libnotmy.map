@@ -191,7 +191,7 @@ Linker script and memory map
 
                 0x20002000                _eram = 0x20002000
 
-.text           0x08000000     0x1288
+.text           0x08000000     0x1294
  *(.isr_vector .isr_vector.*)
  .isr_vector    0x08000000      0x124 ..\obj\startup_stm32f10x_md_vl.o
                 0x08000000                g_pfnVectors
@@ -310,22 +310,22 @@ Linker script and memory map
  .text.set_impulses
                 0x08001064       0xac ..\obj\main.o
                 0x08001064                set_impulses
- .text.itoa     0x08001110       0xc8 ..\obj\main.o
+ .text.itoa     0x08001110       0xd0 ..\obj\main.o
                 0x08001110                itoa
  .text.RCC_APB2PeriphClockCmd
-                0x080011d8       0x58 ..\obj\stm32f10x_rcc.o
-                0x080011d8                RCC_APB2PeriphClockCmd
+                0x080011e0       0x58 ..\obj\stm32f10x_rcc.o
+                0x080011e0                RCC_APB2PeriphClockCmd
  *(.glue_7t)
  .glue_7t       0x00000000        0x0 linker stubs
  *(.glue_7)
  .glue_7        0x00000000        0x0 linker stubs
  *(.rodata .rodata* .gnu.linkonce.r.*)
- .rodata        0x08001230       0x58 ..\obj\main.o
+ .rodata        0x08001238       0x5c ..\obj\main.o
 
-.vfp11_veneer   0x08001288        0x0
+.vfp11_veneer   0x08001294        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x08001288        0x0
+.v4_bx          0x08001294        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
 .ARM.extab
@@ -333,11 +333,11 @@ Linker script and memory map
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x08001288                . = ALIGN (0x4)
-                0x08001288                _etext = .
-                0x08001288                _sidata = .
+                0x08001294                . = ALIGN (0x4)
+                0x08001294                _etext = .
+                0x08001294                _sidata = .
 
-.data           0x20000000       0x40 load address 0x08001288
+.data           0x20000000       0x40 load address 0x08001294
                 0x20000000                _sdata = .
  *(.data .data.*)
  .data          0x20000000       0x40 ..\obj\main.o
@@ -349,7 +349,7 @@ Linker script and memory map
                 0x20000040                . = ALIGN (0x4)
                 0x20000040                _edata = .
 
-.bss            0x20000040        0xc load address 0x080012c8
+.bss            0x20000040        0xc load address 0x080012d4
                 0x20000040                _sbss = .
  *(.bss .bss.*)
  .bss           0x20000040        0xc ..\obj\main.o
@@ -360,7 +360,7 @@ Linker script and memory map
                 0x2000004c                . = ALIGN (0x4)
                 0x2000004c                _ebss = .
 
-.co_stack       0x2000004c      0x404 load address 0x080012d4
+.co_stack       0x2000004c      0x404 load address 0x080012e0
                 0x20000050                . = ALIGN (0x8)
  *fill*         0x2000004c        0x4 00
  *(.co_stack .co_stack.*)
@@ -441,15 +441,15 @@ OUTPUT(lcd_libnotmy.elf elf32-littlearm)
  .debug_ranges  0x00000230      0x110 ..\obj\stm32f10x_rcc.o
  .debug_ranges  0x00000340       0x30 ..\obj\misc.o
 
-.debug_line     0x00000000     0x14cb
+.debug_line     0x00000000     0x14cc
  .debug_line    0x00000000       0xa4 ..\obj\startup_stm32f10x_md_vl.o
  .debug_line    0x000000a4      0x273 ..\obj\core_cm3.o
  .debug_line    0x00000317      0x1fd ..\obj\system_stm32f10x.o
  .debug_line    0x00000514      0x331 ..\obj\hd44780_driver.o
  .debug_line    0x00000845      0x34c ..\obj\stm32f10x_gpio.o
- .debug_line    0x00000b91      0x2ef ..\obj\main.o
- .debug_line    0x00000e80      0x46a ..\obj\stm32f10x_rcc.o
- .debug_line    0x000012ea      0x1e1 ..\obj\misc.o
+ .debug_line    0x00000b91      0x2f0 ..\obj\main.o
+ .debug_line    0x00000e81      0x46a ..\obj\stm32f10x_rcc.o
+ .debug_line    0x000012eb      0x1e1 ..\obj\misc.o
 
 .debug_str      0x00000000     0x105d
  .debug_str     0x00000000       0xfb ..\obj\startup_stm32f10x_md_vl.o
