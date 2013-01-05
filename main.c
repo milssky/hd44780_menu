@@ -13,7 +13,7 @@
 void GPIO_Set(void);
 void menu(void);
 int set_power(void);
-void set_impulses(void);
+int set_impulses(void);
 int check_button(int button);
 void delay_ms(int msec);
 char* itoa(int n);
@@ -168,11 +168,33 @@ int set_power(void)
 	return i;
 }
 
-void set_impulses(void)
+int set_impulses(void)
 {
+	int need_up = 1;
+	int i = 0; // impulse counter
+	in_menu = 0;
 	lcd_clear();
-	lcd_out("hello");
+	lcd_out("Impulses");
+	while(GPIO_ReadInputDataBit(BUT_PORT, BUT_OK))
+	{
+		if(need_up == 1)
+		{
+			lcd_set_xy(3,1);
+			lcd_out(itoa(i));
+			need_up = 0;
+		}
 
+		if(GPIO_ReadInputDataBit(GPIOA, BUT_OK))
+		{
+			i++;
+			if(i > 99)
+			{
+				i = 0;
+			}
+			need_up = 1;
+		}
+	}
+	return i;
 
 }
 
