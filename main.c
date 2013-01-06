@@ -16,7 +16,7 @@ int set_power(void);
 int set_impulses(void);
 int check_button(int button);
 void delay_ms(int msec);
-char* itoa(int n);
+void itoa(int n, char* buf);
 
 char * utoa_divmod(int value, char *buffer);
 
@@ -25,7 +25,7 @@ int current_menu_position = 0; // текущее место в меню
 int need_update = 1; // флаг отрисовки меню
 char* menu_string[] = {"Power","Steps"};
 int menu_size = 1; //0+1 = 2 пункта
-char* qbuf;
+char qbuf[5];
 int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
@@ -42,7 +42,8 @@ int main(void)
     {
 
 	 //menu();
-	  lcd_out(itoa(5));
+	  itoa(5, qbuf);
+	  lcd_out(qbuf);
     }
 
 }
@@ -198,31 +199,28 @@ int set_impulses(void)
 
 }
 
-char* itoa( int n )
+void itoa(int n, char* buf)
 {
 register int r, k;
 int flag = 0;
 int next = 0;
-char* s = "";
    if (n < 0) {
-      s[next++] = '-';
+      buf[next++] = '-';
       n = -n;
    }
    if (n == 0) {
-        s[next++] = 0x30;
+        buf[next++] = 0x30;
    } else {
         k = 10000;
         while (k > 0) {
              r = n / k;
              if (flag || r > 0) {
-                s[next++] = 0x30 + r;
+                buf[next++] = 0x30 + r;
                 flag = 1;
              }
              n -= r * k;
              k = k / 10;
          }
    }
-   s[next] = 0;
-
-   return s;
+   buf[next] = 0;
 }

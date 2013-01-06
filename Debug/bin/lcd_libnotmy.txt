@@ -5,7 +5,7 @@ Debug/bin/lcd_libnotmy.elf:     file format elf32-littlearm
 Disassembly of section .text:
 
 08000000 <g_pfnVectors>:
- 8000000:	fc 03 00 20 25 01 00 08 91 01 00 08 91 01 00 08     ... %...........
+ 8000000:	04 04 00 20 25 01 00 08 91 01 00 08 91 01 00 08     ... %...........
  8000010:	91 01 00 08 91 01 00 08 91 01 00 08 00 00 00 00     ................
 	...
  800002c:	91 01 00 08 91 01 00 08 00 00 00 00 91 01 00 08     ................
@@ -27,7 +27,7 @@ Disassembly of section .text:
  8000124:	b580      	push	{r7, lr}
  8000126:	b082      	sub	sp, #8
  8000128:	af00      	add	r7, sp, #0
- 800012a:	f640 63e0 	movw	r3, #3808	; 0xee0
+ 800012a:	f640 6384 	movw	r3, #3716	; 0xe84
  800012e:	f6c0 0300 	movt	r3, #2048	; 0x800
  8000132:	607b      	str	r3, [r7, #4]
  8000134:	f240 0300 	movw	r3, #0
@@ -64,7 +64,7 @@ Disassembly of section .text:
  8000184:	46bd      	mov	sp, r7
  8000186:	bd80      	pop	{r7, pc}
  8000188:	20000000 	.word	0x20000000
- 800018c:	20000000 	.word	0x20000000
+ 800018c:	20000008 	.word	0x20000008
 
 08000190 <ADC1_IRQHandler>:
  8000190:	b480      	push	{r7}
@@ -1069,138 +1069,136 @@ Disassembly of section .text:
  8000cb4:	f04f 001c 	mov.w	r0, #28
  8000cb8:	f04f 0101 	mov.w	r1, #1
  8000cbc:	f000 f8b6 	bl	8000e2c <RCC_APB2PeriphClockCmd>
- 8000cc0:	f000 f814 	bl	8000cec <GPIO_Set>
+ 8000cc0:	f000 f81a 	bl	8000cf8 <GPIO_Set>
  8000cc4:	f7ff fd5a 	bl	800077c <lcd_init>
  8000cc8:	f04f 0001 	mov.w	r0, #1
  8000ccc:	f04f 0101 	mov.w	r1, #1
  8000cd0:	f04f 0201 	mov.w	r2, #1
  8000cd4:	f7ff fdbe 	bl	8000854 <lcd_set_state>
  8000cd8:	f04f 0005 	mov.w	r0, #5
- 8000cdc:	f000 f83e 	bl	8000d5c <itoa>
- 8000ce0:	4603      	mov	r3, r0
- 8000ce2:	4618      	mov	r0, r3
- 8000ce4:	f7ff fd94 	bl	8000810 <lcd_out>
- 8000ce8:	e7f6      	b.n	8000cd8 <main+0x28>
- 8000cea:	bf00      	nop
+ 8000cdc:	f240 0100 	movw	r1, #0
+ 8000ce0:	f2c2 0100 	movt	r1, #8192	; 0x2000
+ 8000ce4:	f000 f840 	bl	8000d68 <itoa>
+ 8000ce8:	f240 0000 	movw	r0, #0
+ 8000cec:	f2c2 0000 	movt	r0, #8192	; 0x2000
+ 8000cf0:	f7ff fd8e 	bl	8000810 <lcd_out>
+ 8000cf4:	e7f0      	b.n	8000cd8 <main+0x28>
+ 8000cf6:	bf00      	nop
 
-08000cec <GPIO_Set>:
- 8000cec:	b580      	push	{r7, lr}
- 8000cee:	b082      	sub	sp, #8
- 8000cf0:	af00      	add	r7, sp, #0
- 8000cf2:	f04f 032b 	mov.w	r3, #43	; 0x2b
- 8000cf6:	80bb      	strh	r3, [r7, #4]
- 8000cf8:	f04f 0304 	mov.w	r3, #4
- 8000cfc:	71fb      	strb	r3, [r7, #7]
- 8000cfe:	f107 0304 	add.w	r3, r7, #4
- 8000d02:	f44f 6040 	mov.w	r0, #3072	; 0xc00
- 8000d06:	f2c4 0001 	movt	r0, #16385	; 0x4001
- 8000d0a:	4619      	mov	r1, r3
- 8000d0c:	f7ff fef8 	bl	8000b00 <GPIO_Init>
- 8000d10:	f04f 0310 	mov.w	r3, #16
- 8000d14:	71fb      	strb	r3, [r7, #7]
- 8000d16:	f04f 0301 	mov.w	r3, #1
- 8000d1a:	71bb      	strb	r3, [r7, #6]
- 8000d1c:	f44f 7340 	mov.w	r3, #768	; 0x300
- 8000d20:	80bb      	strh	r3, [r7, #4]
- 8000d22:	f107 0304 	add.w	r3, r7, #4
- 8000d26:	f44f 5080 	mov.w	r0, #4096	; 0x1000
- 8000d2a:	f2c4 0001 	movt	r0, #16385	; 0x4001
- 8000d2e:	4619      	mov	r1, r3
- 8000d30:	f7ff fee6 	bl	8000b00 <GPIO_Init>
- 8000d34:	f04f 0301 	mov.w	r3, #1
- 8000d38:	80bb      	strh	r3, [r7, #4]
- 8000d3a:	f04f 0304 	mov.w	r3, #4
- 8000d3e:	71fb      	strb	r3, [r7, #7]
- 8000d40:	f107 0304 	add.w	r3, r7, #4
- 8000d44:	f44f 6000 	mov.w	r0, #2048	; 0x800
- 8000d48:	f2c4 0001 	movt	r0, #16385	; 0x4001
- 8000d4c:	4619      	mov	r1, r3
- 8000d4e:	f7ff fed7 	bl	8000b00 <GPIO_Init>
- 8000d52:	f107 0708 	add.w	r7, r7, #8
- 8000d56:	46bd      	mov	sp, r7
- 8000d58:	bd80      	pop	{r7, pc}
- 8000d5a:	bf00      	nop
+08000cf8 <GPIO_Set>:
+ 8000cf8:	b580      	push	{r7, lr}
+ 8000cfa:	b082      	sub	sp, #8
+ 8000cfc:	af00      	add	r7, sp, #0
+ 8000cfe:	f04f 032b 	mov.w	r3, #43	; 0x2b
+ 8000d02:	80bb      	strh	r3, [r7, #4]
+ 8000d04:	f04f 0304 	mov.w	r3, #4
+ 8000d08:	71fb      	strb	r3, [r7, #7]
+ 8000d0a:	f107 0304 	add.w	r3, r7, #4
+ 8000d0e:	f44f 6040 	mov.w	r0, #3072	; 0xc00
+ 8000d12:	f2c4 0001 	movt	r0, #16385	; 0x4001
+ 8000d16:	4619      	mov	r1, r3
+ 8000d18:	f7ff fef2 	bl	8000b00 <GPIO_Init>
+ 8000d1c:	f04f 0310 	mov.w	r3, #16
+ 8000d20:	71fb      	strb	r3, [r7, #7]
+ 8000d22:	f04f 0301 	mov.w	r3, #1
+ 8000d26:	71bb      	strb	r3, [r7, #6]
+ 8000d28:	f44f 7340 	mov.w	r3, #768	; 0x300
+ 8000d2c:	80bb      	strh	r3, [r7, #4]
+ 8000d2e:	f107 0304 	add.w	r3, r7, #4
+ 8000d32:	f44f 5080 	mov.w	r0, #4096	; 0x1000
+ 8000d36:	f2c4 0001 	movt	r0, #16385	; 0x4001
+ 8000d3a:	4619      	mov	r1, r3
+ 8000d3c:	f7ff fee0 	bl	8000b00 <GPIO_Init>
+ 8000d40:	f04f 0301 	mov.w	r3, #1
+ 8000d44:	80bb      	strh	r3, [r7, #4]
+ 8000d46:	f04f 0304 	mov.w	r3, #4
+ 8000d4a:	71fb      	strb	r3, [r7, #7]
+ 8000d4c:	f107 0304 	add.w	r3, r7, #4
+ 8000d50:	f44f 6000 	mov.w	r0, #2048	; 0x800
+ 8000d54:	f2c4 0001 	movt	r0, #16385	; 0x4001
+ 8000d58:	4619      	mov	r1, r3
+ 8000d5a:	f7ff fed1 	bl	8000b00 <GPIO_Init>
+ 8000d5e:	f107 0708 	add.w	r7, r7, #8
+ 8000d62:	46bd      	mov	sp, r7
+ 8000d64:	bd80      	pop	{r7, pc}
+ 8000d66:	bf00      	nop
 
-08000d5c <itoa>:
- 8000d5c:	b4b0      	push	{r4, r5, r7}
- 8000d5e:	b087      	sub	sp, #28
- 8000d60:	af00      	add	r7, sp, #0
- 8000d62:	6078      	str	r0, [r7, #4]
- 8000d64:	f04f 0300 	mov.w	r3, #0
- 8000d68:	617b      	str	r3, [r7, #20]
- 8000d6a:	f04f 0300 	mov.w	r3, #0
- 8000d6e:	613b      	str	r3, [r7, #16]
- 8000d70:	f640 63dc 	movw	r3, #3804	; 0xedc
- 8000d74:	f6c0 0300 	movt	r3, #2048	; 0x800
- 8000d78:	60fb      	str	r3, [r7, #12]
- 8000d7a:	687b      	ldr	r3, [r7, #4]
- 8000d7c:	2b00      	cmp	r3, #0
- 8000d7e:	da0d      	bge.n	8000d9c <itoa+0x40>
- 8000d80:	693b      	ldr	r3, [r7, #16]
- 8000d82:	68fa      	ldr	r2, [r7, #12]
- 8000d84:	18d3      	adds	r3, r2, r3
- 8000d86:	f04f 022d 	mov.w	r2, #45	; 0x2d
- 8000d8a:	701a      	strb	r2, [r3, #0]
- 8000d8c:	693b      	ldr	r3, [r7, #16]
- 8000d8e:	f103 0301 	add.w	r3, r3, #1
- 8000d92:	613b      	str	r3, [r7, #16]
- 8000d94:	687b      	ldr	r3, [r7, #4]
- 8000d96:	f1c3 0300 	rsb	r3, r3, #0
- 8000d9a:	607b      	str	r3, [r7, #4]
- 8000d9c:	687b      	ldr	r3, [r7, #4]
- 8000d9e:	2b00      	cmp	r3, #0
- 8000da0:	d10a      	bne.n	8000db8 <itoa+0x5c>
- 8000da2:	693b      	ldr	r3, [r7, #16]
- 8000da4:	68fa      	ldr	r2, [r7, #12]
- 8000da6:	18d3      	adds	r3, r2, r3
- 8000da8:	f04f 0230 	mov.w	r2, #48	; 0x30
- 8000dac:	701a      	strb	r2, [r3, #0]
- 8000dae:	693b      	ldr	r3, [r7, #16]
- 8000db0:	f103 0301 	add.w	r3, r3, #1
- 8000db4:	613b      	str	r3, [r7, #16]
- 8000db6:	e02c      	b.n	8000e12 <itoa+0xb6>
- 8000db8:	f242 7410 	movw	r4, #10000	; 0x2710
- 8000dbc:	e027      	b.n	8000e0e <itoa+0xb2>
- 8000dbe:	687b      	ldr	r3, [r7, #4]
- 8000dc0:	fb93 f5f4 	sdiv	r5, r3, r4
- 8000dc4:	697b      	ldr	r3, [r7, #20]
- 8000dc6:	2b00      	cmp	r3, #0
- 8000dc8:	d101      	bne.n	8000dce <itoa+0x72>
- 8000dca:	2d00      	cmp	r5, #0
- 8000dcc:	dd0e      	ble.n	8000dec <itoa+0x90>
- 8000dce:	693b      	ldr	r3, [r7, #16]
- 8000dd0:	68fa      	ldr	r2, [r7, #12]
- 8000dd2:	18d3      	adds	r3, r2, r3
- 8000dd4:	b2ea      	uxtb	r2, r5
- 8000dd6:	f102 0230 	add.w	r2, r2, #48	; 0x30
- 8000dda:	b2d2      	uxtb	r2, r2
- 8000ddc:	701a      	strb	r2, [r3, #0]
- 8000dde:	693b      	ldr	r3, [r7, #16]
- 8000de0:	f103 0301 	add.w	r3, r3, #1
- 8000de4:	613b      	str	r3, [r7, #16]
- 8000de6:	f04f 0301 	mov.w	r3, #1
- 8000dea:	617b      	str	r3, [r7, #20]
- 8000dec:	fb04 f305 	mul.w	r3, r4, r5
- 8000df0:	687a      	ldr	r2, [r7, #4]
- 8000df2:	1ad3      	subs	r3, r2, r3
- 8000df4:	607b      	str	r3, [r7, #4]
- 8000df6:	f246 6367 	movw	r3, #26215	; 0x6667
- 8000dfa:	f2c6 6366 	movt	r3, #26214	; 0x6666
- 8000dfe:	fb83 2304 	smull	r2, r3, r3, r4
- 8000e02:	ea4f 02a3 	mov.w	r2, r3, asr #2
- 8000e06:	ea4f 73e4 	mov.w	r3, r4, asr #31
- 8000e0a:	1ad3      	subs	r3, r2, r3
- 8000e0c:	461c      	mov	r4, r3
- 8000e0e:	2c00      	cmp	r4, #0
- 8000e10:	dcd5      	bgt.n	8000dbe <itoa+0x62>
- 8000e12:	693b      	ldr	r3, [r7, #16]
- 8000e14:	68fa      	ldr	r2, [r7, #12]
- 8000e16:	18d3      	adds	r3, r2, r3
- 8000e18:	f04f 0200 	mov.w	r2, #0
- 8000e1c:	701a      	strb	r2, [r3, #0]
- 8000e1e:	68fb      	ldr	r3, [r7, #12]
- 8000e20:	4618      	mov	r0, r3
- 8000e22:	f107 071c 	add.w	r7, r7, #28
+08000d68 <itoa>:
+ 8000d68:	b4b0      	push	{r4, r5, r7}
+ 8000d6a:	b085      	sub	sp, #20
+ 8000d6c:	af00      	add	r7, sp, #0
+ 8000d6e:	6078      	str	r0, [r7, #4]
+ 8000d70:	6039      	str	r1, [r7, #0]
+ 8000d72:	f04f 0300 	mov.w	r3, #0
+ 8000d76:	60fb      	str	r3, [r7, #12]
+ 8000d78:	f04f 0300 	mov.w	r3, #0
+ 8000d7c:	60bb      	str	r3, [r7, #8]
+ 8000d7e:	687b      	ldr	r3, [r7, #4]
+ 8000d80:	2b00      	cmp	r3, #0
+ 8000d82:	da0d      	bge.n	8000da0 <itoa+0x38>
+ 8000d84:	68bb      	ldr	r3, [r7, #8]
+ 8000d86:	683a      	ldr	r2, [r7, #0]
+ 8000d88:	18d3      	adds	r3, r2, r3
+ 8000d8a:	f04f 022d 	mov.w	r2, #45	; 0x2d
+ 8000d8e:	701a      	strb	r2, [r3, #0]
+ 8000d90:	68bb      	ldr	r3, [r7, #8]
+ 8000d92:	f103 0301 	add.w	r3, r3, #1
+ 8000d96:	60bb      	str	r3, [r7, #8]
+ 8000d98:	687b      	ldr	r3, [r7, #4]
+ 8000d9a:	f1c3 0300 	rsb	r3, r3, #0
+ 8000d9e:	607b      	str	r3, [r7, #4]
+ 8000da0:	687b      	ldr	r3, [r7, #4]
+ 8000da2:	2b00      	cmp	r3, #0
+ 8000da4:	d10a      	bne.n	8000dbc <itoa+0x54>
+ 8000da6:	68bb      	ldr	r3, [r7, #8]
+ 8000da8:	683a      	ldr	r2, [r7, #0]
+ 8000daa:	18d3      	adds	r3, r2, r3
+ 8000dac:	f04f 0230 	mov.w	r2, #48	; 0x30
+ 8000db0:	701a      	strb	r2, [r3, #0]
+ 8000db2:	68bb      	ldr	r3, [r7, #8]
+ 8000db4:	f103 0301 	add.w	r3, r3, #1
+ 8000db8:	60bb      	str	r3, [r7, #8]
+ 8000dba:	e02c      	b.n	8000e16 <itoa+0xae>
+ 8000dbc:	f242 7410 	movw	r4, #10000	; 0x2710
+ 8000dc0:	e027      	b.n	8000e12 <itoa+0xaa>
+ 8000dc2:	687b      	ldr	r3, [r7, #4]
+ 8000dc4:	fb93 f5f4 	sdiv	r5, r3, r4
+ 8000dc8:	68fb      	ldr	r3, [r7, #12]
+ 8000dca:	2b00      	cmp	r3, #0
+ 8000dcc:	d101      	bne.n	8000dd2 <itoa+0x6a>
+ 8000dce:	2d00      	cmp	r5, #0
+ 8000dd0:	dd0e      	ble.n	8000df0 <itoa+0x88>
+ 8000dd2:	68bb      	ldr	r3, [r7, #8]
+ 8000dd4:	683a      	ldr	r2, [r7, #0]
+ 8000dd6:	18d3      	adds	r3, r2, r3
+ 8000dd8:	b2ea      	uxtb	r2, r5
+ 8000dda:	f102 0230 	add.w	r2, r2, #48	; 0x30
+ 8000dde:	b2d2      	uxtb	r2, r2
+ 8000de0:	701a      	strb	r2, [r3, #0]
+ 8000de2:	68bb      	ldr	r3, [r7, #8]
+ 8000de4:	f103 0301 	add.w	r3, r3, #1
+ 8000de8:	60bb      	str	r3, [r7, #8]
+ 8000dea:	f04f 0301 	mov.w	r3, #1
+ 8000dee:	60fb      	str	r3, [r7, #12]
+ 8000df0:	fb04 f305 	mul.w	r3, r4, r5
+ 8000df4:	687a      	ldr	r2, [r7, #4]
+ 8000df6:	1ad3      	subs	r3, r2, r3
+ 8000df8:	607b      	str	r3, [r7, #4]
+ 8000dfa:	f246 6367 	movw	r3, #26215	; 0x6667
+ 8000dfe:	f2c6 6366 	movt	r3, #26214	; 0x6666
+ 8000e02:	fb83 2304 	smull	r2, r3, r3, r4
+ 8000e06:	ea4f 02a3 	mov.w	r2, r3, asr #2
+ 8000e0a:	ea4f 73e4 	mov.w	r3, r4, asr #31
+ 8000e0e:	1ad3      	subs	r3, r2, r3
+ 8000e10:	461c      	mov	r4, r3
+ 8000e12:	2c00      	cmp	r4, #0
+ 8000e14:	dcd5      	bgt.n	8000dc2 <itoa+0x5a>
+ 8000e16:	68bb      	ldr	r3, [r7, #8]
+ 8000e18:	683a      	ldr	r2, [r7, #0]
+ 8000e1a:	18d3      	adds	r3, r2, r3
+ 8000e1c:	f04f 0200 	mov.w	r2, #0
+ 8000e20:	701a      	strb	r2, [r3, #0]
+ 8000e22:	f107 0714 	add.w	r7, r7, #20
  8000e26:	46bd      	mov	sp, r7
  8000e28:	bcb0      	pop	{r4, r5, r7}
  8000e2a:	4770      	bx	lr
@@ -1240,25 +1238,3 @@ Disassembly of section .text:
  8000e7e:	bc80      	pop	{r7}
  8000e80:	4770      	bx	lr
  8000e82:	bf00      	nop
- 8000e84:	00002530 	.word	0x00002530
- 8000e88:	00253031 	.word	0x00253031
- 8000e8c:	00253032 	.word	0x00253032
- 8000e90:	00253033 	.word	0x00253033
- 8000e94:	00253034 	.word	0x00253034
- 8000e98:	00253035 	.word	0x00253035
- 8000e9c:	00253036 	.word	0x00253036
- 8000ea0:	00253037 	.word	0x00253037
- 8000ea4:	00253038 	.word	0x00253038
- 8000ea8:	00253039 	.word	0x00253039
- 8000eac:	25303031 	.word	0x25303031
- 8000eb0:	00000000 	.word	0x00000000
- 8000eb4:	65776f50 	.word	0x65776f50
- 8000eb8:	00000072 	.word	0x00000072
- 8000ebc:	70657453 	.word	0x70657453
- 8000ec0:	00000073 	.word	0x00000073
- 8000ec4:	63726550 	.word	0x63726550
- 8000ec8:	73746e65 	.word	0x73746e65
- 8000ecc:	00000000 	.word	0x00000000
- 8000ed0:	75706d49 	.word	0x75706d49
- 8000ed4:	7365736c 	.word	0x7365736c
-	...

@@ -2,7 +2,7 @@
 Allocating common symbols
 Common symbol       size              file
 
-qbuf                0x4               ..\obj\main.o
+qbuf                0x5               ..\obj\main.o
 
 Discarded input sections
 
@@ -104,6 +104,7 @@ Discarded input sections
  .text          0x00000000        0x0 ..\obj\main.o
  .data          0x00000000       0x40 ..\obj\main.o
  .bss           0x00000000        0xc ..\obj\main.o
+ .rodata        0x00000000       0x4c ..\obj\main.o
  .text.menu     0x00000000      0x15c ..\obj\main.o
  .text.check_button
                 0x00000000       0x5c ..\obj\main.o
@@ -111,9 +112,6 @@ Discarded input sections
                 0x00000000       0x2c ..\obj\main.o
  .text.set_power
                 0x00000000       0xb0 ..\obj\main.o
- .text.set_impulses
-                0x00000000       0xac ..\obj\main.o
- COMMON         0x00000000        0x4 ..\obj\main.o
  .text          0x00000000        0x0 ..\obj\stm32f10x_rcc.o
  .data          0x00000000       0x14 ..\obj\stm32f10x_rcc.o
  .bss           0x00000000        0x0 ..\obj\stm32f10x_rcc.o
@@ -206,7 +204,7 @@ Linker script and memory map
 
                 0x20002000                _eram = 0x20002000
 
-.text           0x08000000      0xee0
+.text           0x08000000      0xe84
  *(.isr_vector .isr_vector.*)
  .isr_vector    0x08000000      0x124 ..\obj\startup_stm32f10x_md_vl.o
                 0x08000000                g_pfnVectors
@@ -300,13 +298,13 @@ Linker script and memory map
  .text.GPIO_Init
                 0x08000b00      0x1b0 ..\obj\stm32f10x_gpio.o
                 0x08000b00                GPIO_Init
- .text.main     0x08000cb0       0x3c ..\obj\main.o
+ .text.main     0x08000cb0       0x48 ..\obj\main.o
                 0x08000cb0                main
  .text.GPIO_Set
-                0x08000cec       0x70 ..\obj\main.o
-                0x08000cec                GPIO_Set
- .text.itoa     0x08000d5c       0xd0 ..\obj\main.o
-                0x08000d5c                itoa
+                0x08000cf8       0x70 ..\obj\main.o
+                0x08000cf8                GPIO_Set
+ .text.itoa     0x08000d68       0xc4 ..\obj\main.o
+                0x08000d68                itoa
  .text.RCC_APB2PeriphClockCmd
                 0x08000e2c       0x58 ..\obj\stm32f10x_rcc.o
                 0x08000e2c                RCC_APB2PeriphClockCmd
@@ -315,12 +313,11 @@ Linker script and memory map
  *(.glue_7)
  .glue_7        0x00000000        0x0 linker stubs
  *(.rodata .rodata* .gnu.linkonce.r.*)
- .rodata        0x08000e84       0x5c ..\obj\main.o
 
-.vfp11_veneer   0x08000ee0        0x0
+.vfp11_veneer   0x08000e84        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x08000ee0        0x0
+.v4_bx          0x08000e84        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
 .ARM.extab
@@ -328,30 +325,33 @@ Linker script and memory map
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x08000ee0                . = ALIGN (0x4)
-                0x08000ee0                _etext = .
-                0x08000ee0                _sidata = .
+                0x08000e84                . = ALIGN (0x4)
+                0x08000e84                _etext = .
+                0x08000e84                _sidata = .
 
-.data           0x20000000        0x0 load address 0x08000ee0
+.data           0x20000000        0x0 load address 0x08000e84
                 0x20000000                _sdata = .
  *(.data .data.*)
                 0x20000000                . = ALIGN (0x4)
                 0x20000000                _edata = .
 
-.bss            0x20000000        0x0
+.bss            0x20000000        0x8
                 0x20000000                _sbss = .
  *(.bss .bss.*)
  *(COMMON)
-                0x20000000                . = ALIGN (0x4)
-                0x20000000                _ebss = .
+ COMMON         0x20000000        0x5 ..\obj\main.o
+                0x20000000                qbuf
+                0x20000008                . = ALIGN (0x4)
+ *fill*         0x20000005        0x3 00
+                0x20000008                _ebss = .
 
-.co_stack       0x20000000      0x400
-                0x20000000                . = ALIGN (0x8)
+.co_stack       0x20000008      0x400
+                0x20000008                . = ALIGN (0x8)
  *(.co_stack .co_stack.*)
- .co_stack      0x20000000      0x400 ..\obj\startup_stm32f10x_md_vl.o
-                0x20000000                pulStack
-                0x20000400                . = ALIGN (0x4)
-                0x20000400                _end = .
+ .co_stack      0x20000008      0x400 ..\obj\startup_stm32f10x_md_vl.o
+                0x20000008                pulStack
+                0x20000408                . = ALIGN (0x4)
+                0x20000408                _end = .
 LOAD ..\obj\startup_stm32f10x_md_vl.o
 LOAD ..\obj\core_cm3.o
 LOAD ..\obj\system_stm32f10x.o
@@ -367,15 +367,15 @@ LOAD d:/arm/arm-none-eabi-gcc-4_6/bin/../lib/gcc/arm-none-eabi/4.6.2/../../../..
 END GROUP
 OUTPUT(lcd_libnotmy.elf elf32-littlearm)
 
-.debug_info     0x00000000     0x28b8
+.debug_info     0x00000000     0x289b
  .debug_info    0x00000000      0x131 ..\obj\startup_stm32f10x_md_vl.o
  .debug_info    0x00000131      0x548 ..\obj\core_cm3.o
  .debug_info    0x00000679      0x433 ..\obj\system_stm32f10x.o
  .debug_info    0x00000aac      0x369 ..\obj\hd44780_driver.o
  .debug_info    0x00000e15      0x723 ..\obj\stm32f10x_gpio.o
- .debug_info    0x00001538      0x4c4 ..\obj\main.o
- .debug_info    0x000019fc      0x976 ..\obj\stm32f10x_rcc.o
- .debug_info    0x00002372      0x546 ..\obj\misc.o
+ .debug_info    0x00001538      0x4a7 ..\obj\main.o
+ .debug_info    0x000019df      0x976 ..\obj\stm32f10x_rcc.o
+ .debug_info    0x00002355      0x546 ..\obj\misc.o
 
 .debug_abbrev   0x00000000      0xa7f
  .debug_abbrev  0x00000000       0xa3 ..\obj\startup_stm32f10x_md_vl.o
@@ -387,17 +387,17 @@ OUTPUT(lcd_libnotmy.elf elf32-littlearm)
  .debug_abbrev  0x000007b9      0x191 ..\obj\stm32f10x_rcc.o
  .debug_abbrev  0x0000094a      0x135 ..\obj\misc.o
 
-.debug_loc      0x00000000     0x14e0
+.debug_loc      0x00000000     0x14a8
  .debug_loc     0x00000000       0x64 ..\obj\startup_stm32f10x_md_vl.o
  .debug_loc     0x00000064      0x3f0 ..\obj\core_cm3.o
  .debug_loc     0x00000454       0xc8 ..\obj\system_stm32f10x.o
  .debug_loc     0x0000051c      0x20c ..\obj\hd44780_driver.o
  .debug_loc     0x00000728      0x3e4 ..\obj\stm32f10x_gpio.o
- .debug_loc     0x00000b0c      0x1a8 ..\obj\main.o
- .debug_loc     0x00000cb4      0x714 ..\obj\stm32f10x_rcc.o
- .debug_loc     0x000013c8      0x118 ..\obj\misc.o
+ .debug_loc     0x00000b0c      0x170 ..\obj\main.o
+ .debug_loc     0x00000c7c      0x714 ..\obj\stm32f10x_rcc.o
+ .debug_loc     0x00001390      0x118 ..\obj\misc.o
 
-.debug_aranges  0x00000000      0x3f0
+.debug_aranges  0x00000000      0x3e8
  .debug_aranges
                 0x00000000       0x28 ..\obj\startup_stm32f10x_md_vl.o
  .debug_aranges
@@ -409,33 +409,33 @@ OUTPUT(lcd_libnotmy.elf elf32-littlearm)
  .debug_aranges
                 0x00000190       0xa8 ..\obj\stm32f10x_gpio.o
  .debug_aranges
-                0x00000238       0x58 ..\obj\main.o
+                0x00000238       0x50 ..\obj\main.o
  .debug_aranges
-                0x00000290      0x120 ..\obj\stm32f10x_rcc.o
+                0x00000288      0x120 ..\obj\stm32f10x_rcc.o
  .debug_aranges
-                0x000003b0       0x40 ..\obj\misc.o
+                0x000003a8       0x40 ..\obj\misc.o
 
-.debug_ranges   0x00000000      0x370
+.debug_ranges   0x00000000      0x368
  .debug_ranges  0x00000000       0x18 ..\obj\startup_stm32f10x_md_vl.o
  .debug_ranges  0x00000018       0xb8 ..\obj\core_cm3.o
  .debug_ranges  0x000000d0       0x28 ..\obj\system_stm32f10x.o
  .debug_ranges  0x000000f8       0x58 ..\obj\hd44780_driver.o
  .debug_ranges  0x00000150       0x98 ..\obj\stm32f10x_gpio.o
- .debug_ranges  0x000001e8       0x48 ..\obj\main.o
- .debug_ranges  0x00000230      0x110 ..\obj\stm32f10x_rcc.o
- .debug_ranges  0x00000340       0x30 ..\obj\misc.o
+ .debug_ranges  0x000001e8       0x40 ..\obj\main.o
+ .debug_ranges  0x00000228      0x110 ..\obj\stm32f10x_rcc.o
+ .debug_ranges  0x00000338       0x30 ..\obj\misc.o
 
-.debug_line     0x00000000     0x14cc
+.debug_line     0x00000000     0x14a5
  .debug_line    0x00000000       0xa4 ..\obj\startup_stm32f10x_md_vl.o
  .debug_line    0x000000a4      0x273 ..\obj\core_cm3.o
  .debug_line    0x00000317      0x1fd ..\obj\system_stm32f10x.o
  .debug_line    0x00000514      0x331 ..\obj\hd44780_driver.o
  .debug_line    0x00000845      0x34c ..\obj\stm32f10x_gpio.o
- .debug_line    0x00000b91      0x2f0 ..\obj\main.o
- .debug_line    0x00000e81      0x46a ..\obj\stm32f10x_rcc.o
- .debug_line    0x000012eb      0x1e1 ..\obj\misc.o
+ .debug_line    0x00000b91      0x2c9 ..\obj\main.o
+ .debug_line    0x00000e5a      0x46a ..\obj\stm32f10x_rcc.o
+ .debug_line    0x000012c4      0x1e1 ..\obj\misc.o
 
-.debug_str      0x00000000     0x105d
+.debug_str      0x00000000     0x1050
  .debug_str     0x00000000       0xfb ..\obj\startup_stm32f10x_md_vl.o
                                 0x11a (size before relaxing)
  .debug_str     0x000000fb      0x1d8 ..\obj\core_cm3.o
@@ -446,11 +446,11 @@ OUTPUT(lcd_libnotmy.elf elf32-littlearm)
                                 0x281 (size before relaxing)
  .debug_str     0x000005ca      0x38e ..\obj\stm32f10x_gpio.o
                                 0x4b2 (size before relaxing)
- .debug_str     0x00000958       0xf8 ..\obj\main.o
-                                0x36d (size before relaxing)
- .debug_str     0x00000a50      0x41c ..\obj\stm32f10x_rcc.o
+ .debug_str     0x00000958       0xeb ..\obj\main.o
+                                0x360 (size before relaxing)
+ .debug_str     0x00000a43      0x41c ..\obj\stm32f10x_rcc.o
                                 0x606 (size before relaxing)
- .debug_str     0x00000e6c      0x1f1 ..\obj\misc.o
+ .debug_str     0x00000e5f      0x1f1 ..\obj\misc.o
                                 0x35c (size before relaxing)
 
 .comment        0x00000000       0x70
@@ -483,12 +483,12 @@ OUTPUT(lcd_libnotmy.elf elf32-littlearm)
  .ARM.attributes
                 0x00000165       0x33 ..\obj\misc.o
 
-.debug_frame    0x00000000      0xbd8
+.debug_frame    0x00000000      0xbb8
  .debug_frame   0x00000000       0x48 ..\obj\startup_stm32f10x_md_vl.o
  .debug_frame   0x00000048      0x280 ..\obj\core_cm3.o
  .debug_frame   0x000002c8       0x80 ..\obj\system_stm32f10x.o
  .debug_frame   0x00000348      0x13c ..\obj\hd44780_driver.o
  .debug_frame   0x00000484      0x210 ..\obj\stm32f10x_gpio.o
- .debug_frame   0x00000694      0x104 ..\obj\main.o
- .debug_frame   0x00000798      0x3a4 ..\obj\stm32f10x_rcc.o
- .debug_frame   0x00000b3c       0x9c ..\obj\misc.o
+ .debug_frame   0x00000694       0xe4 ..\obj\main.o
+ .debug_frame   0x00000778      0x3a4 ..\obj\stm32f10x_rcc.o
+ .debug_frame   0x00000b1c       0x9c ..\obj\misc.o
