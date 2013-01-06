@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
    <processor signature="arm-none-eabi-gcc -O0 -nostartfiles -Map=lcd_libnotmy.map -mcpu=cortex-m3 -mthumb -LD:\ARM\CoIDE\workspace\lcd_libnotmy --gc-sections -TD:\ARM\CoIDE\workspace\lcd_libnotmy\link.ld -g">
-      <target file="lcd_libnotmy.elf" lastModified="13c0a4c96c5">
-         <source file="..\obj\startup_stm32f10x_md_vl.o" lastModified="13c0a4c91f5"/>
-         <source file="..\obj\core_cm3.o" lastModified="13c0a4c9242"/>
-         <source file="..\obj\system_stm32f10x.o" lastModified="13c0a4c929b"/>
-         <source file="..\obj\hd44780_driver.o" lastModified="13c0a4c930a"/>
-         <source file="..\obj\stm32f10x_gpio.o" lastModified="13c0a4c937c"/>
-         <source file="..\obj\main.o" lastModified="13c0a4c93e3"/>
-         <source file="..\obj\stm32f10x_rcc.o" lastModified="13c0a4c9478"/>
-         <source file="..\obj\misc.o" lastModified="13c0a4c94d3"/>
+      <target file="lcd_libnotmy.elf" lastModified="13c102cb4e4">
+         <source file="..\obj\startup_stm32f10x_md_vl.o" lastModified="13c102caffb"/>
+         <source file="..\obj\core_cm3.o" lastModified="13c102cb054"/>
+         <source file="..\obj\system_stm32f10x.o" lastModified="13c102cb0ad"/>
+         <source file="..\obj\hd44780_driver.o" lastModified="13c102cb12e"/>
+         <source file="..\obj\stm32f10x_gpio.o" lastModified="13c102cb1a1"/>
+         <source file="..\obj\main.o" lastModified="13c102cb208"/>
+         <source file="..\obj\stm32f10x_rcc.o" lastModified="13c102cb28d"/>
+         <source file="..\obj\misc.o" lastModified="13c102cb2e4"/>
       </target>
    </processor>
 </history>

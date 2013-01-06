@@ -41,8 +41,8 @@ int main(void)
   while(1)
     {
 
-	 menu();
-
+	 //menu();
+	  lcd_out(itoa(5));
     }
 
 }
