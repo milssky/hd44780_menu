@@ -181,7 +181,8 @@ int set_impulses(void)
 		if(need_up == 1)
 		{
 			lcd_set_xy(3,1);
-			lcd_out(itoa(i));
+			itoa(i,qbuf);
+			lcd_out(qbuf);
 			need_up = 0;
 		}
 
