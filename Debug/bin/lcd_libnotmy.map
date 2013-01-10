@@ -62,8 +62,6 @@ Discarded input sections
  .bss           0x00000000        0x0 ..\obj\hd44780_driver.o
  .text.lcd_set_user_char
                 0x00000000       0x64 ..\obj\hd44780_driver.o
- .text.lcd_set_xy
-                0x00000000       0x44 ..\obj\hd44780_driver.o
  .text          0x00000000        0x0 ..\obj\stm32f10x_gpio.o
  .data          0x00000000        0x0 ..\obj\stm32f10x_gpio.o
  .bss           0x00000000        0x0 ..\obj\stm32f10x_gpio.o
@@ -73,15 +71,11 @@ Discarded input sections
                 0x00000000       0x20 ..\obj\stm32f10x_gpio.o
  .text.GPIO_StructInit
                 0x00000000       0x2c ..\obj\stm32f10x_gpio.o
- .text.GPIO_ReadInputDataBit
-                0x00000000       0x3c ..\obj\stm32f10x_gpio.o
  .text.GPIO_ReadInputData
                 0x00000000       0x1c ..\obj\stm32f10x_gpio.o
  .text.GPIO_ReadOutputDataBit
                 0x00000000       0x3c ..\obj\stm32f10x_gpio.o
  .text.GPIO_ReadOutputData
-                0x00000000       0x1c ..\obj\stm32f10x_gpio.o
- .text.GPIO_SetBits
                 0x00000000       0x1c ..\obj\stm32f10x_gpio.o
  .text.GPIO_ResetBits
                 0x00000000       0x1c ..\obj\stm32f10x_gpio.o
@@ -102,18 +96,6 @@ Discarded input sections
  .text.GPIO_ETH_MediaInterfaceConfig
                 0x00000000       0x20 ..\obj\stm32f10x_gpio.o
  .text          0x00000000        0x0 ..\obj\main.o
- .data          0x00000000       0x40 ..\obj\main.o
- .bss           0x00000000        0xc ..\obj\main.o
- .rodata        0x00000000       0x58 ..\obj\main.o
- .text.menu     0x00000000      0x15c ..\obj\main.o
- .text.check_button
-                0x00000000       0x5c ..\obj\main.o
- .text.delay_ms
-                0x00000000       0x2c ..\obj\main.o
- .text.set_power
-                0x00000000       0xb0 ..\obj\main.o
- .text.set_impulses
-                0x00000000       0xb8 ..\obj\main.o
  .text          0x00000000        0x0 ..\obj\stm32f10x_rcc.o
  .data          0x00000000       0x14 ..\obj\stm32f10x_rcc.o
  .bss           0x00000000        0x0 ..\obj\stm32f10x_rcc.o
@@ -206,7 +188,7 @@ Linker script and memory map
 
                 0x20002000                _eram = 0x20002000
 
-.text           0x08000000      0xe84
+.text           0x08000000     0x12bc
  *(.isr_vector .isr_vector.*)
  .isr_vector    0x08000000      0x124 ..\obj\startup_stm32f10x_md_vl.o
                 0x08000000                g_pfnVectors
@@ -283,43 +265,67 @@ Linker script and memory map
  .text.lcd_init
                 0x0800077c       0x94 ..\obj\hd44780_driver.o
                 0x0800077c                lcd_init
- .text.lcd_out  0x08000810       0x30 ..\obj\hd44780_driver.o
-                0x08000810                lcd_out
+ .text.lcd_set_xy
+                0x08000810       0x44 ..\obj\hd44780_driver.o
+                0x08000810                lcd_set_xy
+ .text.lcd_out  0x08000854       0x30 ..\obj\hd44780_driver.o
+                0x08000854                lcd_out
  .text.lcd_clear
-                0x08000840       0x14 ..\obj\hd44780_driver.o
-                0x08000840                lcd_clear
+                0x08000884       0x14 ..\obj\hd44780_driver.o
+                0x08000884                lcd_clear
  .text.lcd_set_state
-                0x08000854       0x78 ..\obj\hd44780_driver.o
-                0x08000854                lcd_set_state
+                0x08000898       0x78 ..\obj\hd44780_driver.o
+                0x08000898                lcd_set_state
  .text.lcd_set_4bit_mode
-                0x080008cc       0xd4 ..\obj\hd44780_driver.o
-                0x080008cc                lcd_set_4bit_mode
+                0x08000910       0xd4 ..\obj\hd44780_driver.o
+                0x08000910                lcd_set_4bit_mode
  .text.lcd_send
-                0x080009a0      0x160 ..\obj\hd44780_driver.o
-                0x080009a0                lcd_send
+                0x080009e4      0x160 ..\obj\hd44780_driver.o
+                0x080009e4                lcd_send
  .text.GPIO_Init
-                0x08000b00      0x1b0 ..\obj\stm32f10x_gpio.o
-                0x08000b00                GPIO_Init
- .text.main     0x08000cb0       0x48 ..\obj\main.o
-                0x08000cb0                main
+                0x08000b44      0x1b0 ..\obj\stm32f10x_gpio.o
+                0x08000b44                GPIO_Init
+ .text.GPIO_ReadInputDataBit
+                0x08000cf4       0x3c ..\obj\stm32f10x_gpio.o
+                0x08000cf4                GPIO_ReadInputDataBit
+ .text.GPIO_SetBits
+                0x08000d30       0x1c ..\obj\stm32f10x_gpio.o
+                0x08000d30                GPIO_SetBits
+ .text.main     0x08000d4c       0x40 ..\obj\main.o
+                0x08000d4c                main
  .text.GPIO_Set
-                0x08000cf8       0x70 ..\obj\main.o
-                0x08000cf8                GPIO_Set
- .text.itoa     0x08000d68       0xc4 ..\obj\main.o
-                0x08000d68                itoa
+                0x08000d8c       0x70 ..\obj\main.o
+                0x08000d8c                GPIO_Set
+ .text.menu     0x08000dfc      0x15c ..\obj\main.o
+                0x08000dfc                menu
+ .text.check_button
+                0x08000f58       0x5c ..\obj\main.o
+                0x08000f58                check_button
+ .text.delay_ms
+                0x08000fb4       0x2c ..\obj\main.o
+                0x08000fb4                delay_ms
+ .text.set_power
+                0x08000fe0       0xb0 ..\obj\main.o
+                0x08000fe0                set_power
+ .text.set_impulses
+                0x08001090       0xb8 ..\obj\main.o
+                0x08001090                set_impulses
+ .text.itoa     0x08001148       0xc4 ..\obj\main.o
+                0x08001148                itoa
  .text.RCC_APB2PeriphClockCmd
-                0x08000e2c       0x58 ..\obj\stm32f10x_rcc.o
-                0x08000e2c                RCC_APB2PeriphClockCmd
+                0x0800120c       0x58 ..\obj\stm32f10x_rcc.o
+                0x0800120c                RCC_APB2PeriphClockCmd
  *(.glue_7t)
  .glue_7t       0x00000000        0x0 linker stubs
  *(.glue_7)
  .glue_7        0x00000000        0x0 linker stubs
  *(.rodata .rodata* .gnu.linkonce.r.*)
+ .rodata        0x08001264       0x58 ..\obj\main.o
 
-.vfp11_veneer   0x08000e84        0x0
+.vfp11_veneer   0x080012bc        0x0
  .vfp11_veneer  0x00000000        0x0 linker stubs
 
-.v4_bx          0x08000e84        0x0
+.v4_bx          0x080012bc        0x0
  .v4_bx         0x00000000        0x0 linker stubs
 
 .ARM.extab
@@ -327,33 +333,44 @@ Linker script and memory map
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x08000e84                . = ALIGN (0x4)
-                0x08000e84                _etext = .
-                0x08000e84                _sidata = .
+                0x080012bc                . = ALIGN (0x4)
+                0x080012bc                _etext = .
+                0x080012bc                _sidata = .
 
-.data           0x20000000        0x0 load address 0x08000e84
+.data           0x20000000       0x40 load address 0x080012bc
                 0x20000000                _sdata = .
  *(.data .data.*)
-                0x20000000                . = ALIGN (0x4)
-                0x20000000                _edata = .
+ .data          0x20000000       0x40 ..\obj\main.o
+                0x20000000                percents
+                0x2000002c                need_update
+                0x20000030                menu_string
+                0x20000038                menu_size
+                0x2000003c                in_menu
+                0x20000040                . = ALIGN (0x4)
+                0x20000040                _edata = .
 
-.bss            0x20000000        0x8
-                0x20000000                _sbss = .
+.bss            0x20000040       0x14 load address 0x080012fc
+                0x20000040                _sbss = .
  *(.bss .bss.*)
+ .bss           0x20000040        0xc ..\obj\main.o
+                0x20000040                current_menu_position
+                0x20000044                power_percents
+                0x20000048                impulses_count
  *(COMMON)
- COMMON         0x20000000        0x5 ..\obj\main.o
-                0x20000000                qbuf
-                0x20000008                . = ALIGN (0x4)
- *fill*         0x20000005        0x3 00
-                0x20000008                _ebss = .
+ COMMON         0x2000004c        0x5 ..\obj\main.o
+                0x2000004c                qbuf
+                0x20000054                . = ALIGN (0x4)
+ *fill*         0x20000051        0x3 00
+                0x20000054                _ebss = .
 
-.co_stack       0x20000008      0x400
-                0x20000008                . = ALIGN (0x8)
+.co_stack       0x20000054      0x404 load address 0x08001310
+                0x20000058                . = ALIGN (0x8)
+ *fill*         0x20000054        0x4 00
  *(.co_stack .co_stack.*)
- .co_stack      0x20000008      0x400 ..\obj\startup_stm32f10x_md_vl.o
-                0x20000008                pulStack
-                0x20000408                . = ALIGN (0x4)
-                0x20000408                _end = .
+ .co_stack      0x20000058      0x400 ..\obj\startup_stm32f10x_md_vl.o
+                0x20000058                pulStack
+                0x20000458                . = ALIGN (0x4)
+                0x20000458                _end = .
 LOAD ..\obj\startup_stm32f10x_md_vl.o
 LOAD ..\obj\core_cm3.o
 LOAD ..\obj\system_stm32f10x.o
