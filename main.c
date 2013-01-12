@@ -12,6 +12,10 @@
 #define BUT_OK GPIO_Pin_0 // PA0 for debuffing
 
 void GPIO_Set(void);
+void EXTI_Configuration(void);
+void NVIC_Configuration(void);
+void RCC_Configuration(void);
+void SetTimTime(int time);
 void menu(void);
 int set_power(void);
 int set_impulses(void);
@@ -27,25 +31,34 @@ int need_update = 1; // флаг отрисовки меню
 char* menu_string[] = {"Power","Steps"};
 int menu_size = 1; //0+1 = 2 пункта
 char qbuf[5];
+int power_table[] = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50}; // период в мс прерывани€ таймера
 int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
+int curr_times = 0;
+
+TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
 int main(void)
 {
-  //uint8_t user_char[8]; //—юда будем записывать пользовательский символ
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOA, ENABLE); //¬кл порт — и B
+  RCC_Configuration();
   GPIO_Set();
+  NVIC_Configuration();
   lcd_init(); //»нициализируем дисплей
   lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK); //¬ключаем курсор и мигалку
-
+  menu();
+  EXTI_Configuration(); // вышли из меню и включили прерывани€ от детектора нул€
+  SetTimTime(power_table[power_percents]);
   while(1)
     {
+	  if(curr_times == impulses_count)
+	  {
+		  EXTI_DeInit();
+	  }
 
 
-	  menu();
 
-	  GPIO_SetBits(GPIOC, GPIO_Pin_8);
+
     }
 
 }
@@ -60,6 +73,7 @@ void GPIO_Set(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+	/* The out to 1st and 2nd thyristors */
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
@@ -68,10 +82,86 @@ void GPIO_Set(void)
 	GPIO_InitStructure.GPIO_Pin = BUT_OK;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/*The EXTI in. PA4 */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource4);
 }
+
+void RCC_Configuration(void)
+{
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM15 | RCC_APB2Periph_AFIO, ENABLE);
+	/* Get takts to GPIOs, TIM15, AFIO, EXTI */
+}
+
+void EXTI_Configuration(void)
+{
+	EXTI_InitTypeDef EXTI_InitStructure;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+}
+
+/* NVIC Configuration */
+void NVIC_Configuration(void)
+{
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+}
+
+void TIM_Configuration(void)
+{
+
+
+	/* Time base configuration */
+	TIM_TimeBaseStructure.TIM_Period = 5 - 1; // мощность по умолчанию = 10% (50 мс (период сети) . ћинус стоит, т.к. Prescaler учитываес€ как Prescaler + 1
+	TIM_TimeBaseStructure.TIM_Prescaler = 8000; // прерывание раз в миллисекунду: 8ћ√ц / 8000 = 1 к√ц = 1 мс
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_ARRPreloadConfig(TIM15, ENABLE);
+	/* Overflow interrupt  */
+	TIM_ITConfig(TIM15,TIM_IT_Update,ENABLE);
+
+}
+
+void SetTimTime(int time)
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+	/* Time base configuration */
+	TIM_TimeBaseStructure.TIM_Period = time;
+	TIM_TimeBaseInit(TIM15, &TIM_TimeBaseStructure);
+}
+
+void EXTI4_IRQHandler(void)
+{
+	TIM_Cmd(TIM15, ENABLE);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+}
+
+void TIM15_IRQHandler(void)
+{
+	GPIO_SetBits(GPIOC, GPIO_Pin_8);
+	GPIO_SetBits(GPIOC, GPIO_Pin_9);
+	curr_times++;
+	TIM_Cmd(TIM15, DISABLE);
+}
+
 
 void menu(void)
 {
+	while(check_button(BUT_START))
+	{
 		if((need_update == 1) && (in_menu == 1))
 		{
 			lcd_clear();
@@ -113,7 +203,7 @@ void menu(void)
 			need_update = 1;
 			current_menu_position = 0;
 		}*/
-
+	}
 }
 
 int check_button(int button)
@@ -168,6 +258,7 @@ int set_power(void)
 			need_up = 1;
 		}
 	}
+	power_percents = i;
 	return i;
 }
 
@@ -198,6 +289,7 @@ int set_impulses(void)
 			need_up = 1;
 		}
 	}
+	impulses_count = i;
 	return i;
 
 }
