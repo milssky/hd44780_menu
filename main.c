@@ -2,19 +2,21 @@
 #include "hd44780_driver\hd44780_driver.h"
 #include "stm32f10x_rcc.h"
 
-#define BUT_UP GPIO_Pin_5
+#define BUT_OK GPIO_Pin_0 // PA0 for debuffing
 #define BUT_DOWN GPIO_Pin_1
-#define BUT_ENTER GPIO_Pin_9
-#define BUT_BACK GPIO_Pin_3
 #define BUT_START GPIO_Pin_2
+#define BUT_BACK GPIO_Pin_3
+#define BUT_UP GPIO_Pin_5
+#define BUT_ENTER GPIO_Pin_9
 #define BUT_PORT GPIOB
 
-#define BUT_OK GPIO_Pin_0 // PA0 for debuffing
+#define ADC_PIN GPIO_Pin_1
 
-void GPIO_Set(void);
+void GPIO_Configuration(void);
 void EXTI_Configuration(void);
 void NVIC_Configuration(void);
 void RCC_Configuration(void);
+void ADC_Configuration(void);
 void SetTimTime(int time);
 void menu(void);
 int set_power(void);
@@ -36,35 +38,56 @@ int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
 int curr_times = 0;
-
+int adc_current;
 TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
 int main(void)
 {
   RCC_Configuration();
-  GPIO_Set();
+  GPIO_Configuration();
   NVIC_Configuration();
   lcd_init(); //»нициализируем дисплей
   lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK); //¬ключаем курсор и мигалку
   menu();
   EXTI_Configuration(); // вышли из меню и включили прерывани€ от детектора нул€
   SetTimTime(power_table[power_percents]);
+  lcd_out("Cuurent");
   while(1)
     {
 	  if(curr_times == impulses_count)
 	  {
 		  EXTI_DeInit();
 	  }
-
-
+	  lcd_set_xy(0,1);
+	  adc_current = ADC_GetConversionValue(ADC1);
+	  itoa(adc_current,qbuf);
+	  lcd_out(qbuf);
 
 
     }
 
 }
 
+void RCC_Configuration(void)
+{
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA |
+							RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM15 |
+							RCC_APB2Periph_AFIO, ENABLE);
+	/* Get takts to GPIOs, TIM15, AFIO, EXTI */
+}
 
-void GPIO_Set(void)
+/* EXTI Configuration */
+void EXTI_Configuration(void)
+{
+	EXTI_InitTypeDef EXTI_InitStructure;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);
+}
+
+void GPIO_Configuration(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -88,24 +111,13 @@ void GPIO_Set(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource4);
-}
 
-void RCC_Configuration(void)
-{
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM15 | RCC_APB2Periph_AFIO, ENABLE);
-	/* Get takts to GPIOs, TIM15, AFIO, EXTI */
-}
+	/* ADC Pin */
 
-void EXTI_Configuration(void)
-{
-	EXTI_InitTypeDef EXTI_InitStructure;
-	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = ADC_PIN;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
-
 /* NVIC Configuration */
 void NVIC_Configuration(void)
 {
@@ -123,14 +135,46 @@ void TIM_Configuration(void)
 
 
 	/* Time base configuration */
-	TIM_TimeBaseStructure.TIM_Period = 5 - 1; // мощность по умолчанию = 10% (50 мс (период сети) . ћинус стоит, т.к. Prescaler учитываес€ как Prescaler + 1
-	TIM_TimeBaseStructure.TIM_Prescaler = 8000; // прерывание раз в миллисекунду: 8ћ√ц / 8000 = 1 к√ц = 1 мс
+	TIM_TimeBaseStructure.TIM_Period = 5; // мощность по умолчанию = 10% (50 мс (период сети) * 0.1).
+	TIM_TimeBaseStructure.TIM_Prescaler = SystemCoreClock / 1000 - 1; // прерывание раз в миллисекунду: 8ћ√ц / 8000 = 1 к√ц = 1 мс. ћинус стоит, т.к. Prescaler учитываес€ как Prescaler + 1
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_ARRPreloadConfig(TIM15, ENABLE);
 	/* Overflow interrupt  */
 	TIM_ITConfig(TIM15,TIM_IT_Update,ENABLE);
 
+}
+
+void ADC_Configuration(void)
+{
+	ADC_InitTypeDef ADC_InitStructure;
+	//clock for ADC (max 14MHz --> 72/6=12MHz)
+	RCC_ADCCLKConfig (RCC_PCLK2_Div6);
+	// enable ADC system clock
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+	// define ADC config
+	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	// we work in continuous sampling mode
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_NbrOfChannel = 1;
+
+	ADC_RegularChannelConfig(ADC1,ADC_Channel_1, 1,ADC_SampleTime_28Cycles5); // define regular conversion config
+	ADC_Init(ADC1, &ADC_InitStructure);	//set config of ADC1
+
+	// enable ADC
+	ADC_Cmd(ADC1,ENABLE);	//enable ADC1
+
+	//	ADC calibration (optional, but recommended at power on)
+	ADC_ResetCalibration(ADC1);	// Reset previous calibration
+	while(ADC_GetResetCalibrationStatus(ADC1));
+	ADC_StartCalibration(ADC1);	// Start new calibration (ADC must be off at that time)
+	while(ADC_GetCalibrationStatus(ADC1));
+
+	// start conversion
+	ADC_Cmd (ADC1,ENABLE);	//enable ADC1
 }
 
 void SetTimTime(int time)
@@ -154,6 +198,7 @@ void TIM15_IRQHandler(void)
 	GPIO_SetBits(GPIOC, GPIO_Pin_8);
 	GPIO_SetBits(GPIOC, GPIO_Pin_9);
 	curr_times++;
+	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
 	TIM_Cmd(TIM15, DISABLE);
 }
 
