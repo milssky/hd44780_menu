@@ -3,11 +3,13 @@
 #include "stm32f10x_rcc.h"
 
 #define BUT_OK GPIO_Pin_0 // PA0 for debuffing
-#define BUT_DOWN GPIO_Pin_1
-#define BUT_START GPIO_Pin_2
-#define BUT_BACK GPIO_Pin_3
-#define BUT_UP GPIO_Pin_5
-#define BUT_ENTER GPIO_Pin_9
+
+#define BUT_DOWN GPIO_Pin_14
+#define BUT_START GPIO_Pin_11
+#define BUT_BACK GPIO_Pin_12
+#define BUT_UP GPIO_Pin_13
+#define BUT_ENTER GPIO_Pin_10 // OK on PCB
+
 #define BUT_PORT GPIOB
 
 #define ADC_PIN GPIO_Pin_1

@@ -1,0 +1,66 @@
+P-CAD Net List Load Errors
+
+======================================================================
+
+Netlist filename: D:\Job\regulator_2002.net
+Error: line 2059
+   * Component SB6X6X8 not loaded.  Attached pattern 6X6X8 is not in library.
+Error: line 2079
+   * Component RESONATOR not loaded.  Attached pattern XTAL is not in library.
+Error: line 2084
+   * Component SB6X6X8 not loaded.  Attached pattern 6X6X8 is not in library.
+Error: line 2094
+   * Component SB6X6X8 not loaded.  Attached pattern 6X6X8 is not in library.
+Error: line 2099
+   * Component SB6X6X8 not loaded.  Attached pattern 6X6X8 is not in library.
+Error: line 2121
+   * Component 554CA3 not loaded.  Attached pattern DIP-P14 is not in library.
+Error: line 2143
+   * Component AOT128 not loaded.  Attached pattern DIP6 is not in library.
+Error: line 2209
+   * Component LM1117 not loaded.  Attached pattern SOT-223 is not in library.
+Error: line 2235
+   * Component AOT128 not loaded.  Attached pattern DIP6 is not in library.
+Error: Net NET00000: Refdes ZQ1 of ZQ1-0 not found.
+Error: Net NET00001: Refdes ZQ1 of ZQ1-1 not found.
+Error: Net GND: Refdes DD2 of DD2-6 not found.
+Error: Net GND: Refdes DD2 of DD2-2 not found.
+Error: Net GND: Refdes DA1 of DA1-3 not found.
+Error: Net GND: Refdes U1 of U1-2 not found.
+Error: Net GND: Refdes U2 of U2-2 not found.
+Error: Net +3.3V: Refdes SB1 of SB1-3 not found.
+Error: Net +3.3V: Refdes SB3 of SB3-3 not found.
+Error: Net +3.3V: Refdes DA1 of DA1-2 not found.
+Error: Net +3.3V: Refdes SB4 of SB4-3 not found.
+Error: Net +3.3V: Refdes SB2 of SB2-3 not found.
+Error: Net NET00004: Refdes DD2 of DD2-4 not found.
+Error: Net NET00007: Refdes DD2 of DD2-9 not found.
+Error: Net NET00006: Refdes DD2 of DD2-3 not found.
+Error: Net NET00008: Refdes U1 of U1-1 not found.
+Error: Net NET00009: Refdes U2 of U2-1 not found.
+Error: Net NET00010: Refdes U2 of U2-6 not found.
+Error: Net NET00011: Refdes U2 of U2-5 not found.
+Error: Net +24V: Refdes DD2 of DD2-11 not found.
+Error: Net +24V: Refdes U1 of U1-4 not found.
+Error: Net +24V: Refdes U2 of U2-4 not found.
+Error: Net NET00016: Refdes U1 of U1-6 not found.
+Error: Net NET00017: Refdes U1 of U1-5 not found.
+Error: Net DOWN: Refdes SB3 of SB3-1 not found.
+Error: Net OK: Refdes SB2 of SB2-1 not found.
+Error: Net START: Refdes SB1 of SB1-1 not found.
+Error: Net +5V: Refdes DA1 of DA1-1 not found.
+Error: Net UP: Refdes SB4 of SB4-1 not found.
+
+Net List Errors:   38
+Net List Warnings: 0
+
+
+
+
+
+
+
+----------------------------------------------------------------------
+
+04-Apr-12  23:23                                            Page    1
+
