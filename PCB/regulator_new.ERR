@@ -1,0 +1,66 @@
+P-CAD Net List Load Errors
+
+======================================================================
+
+Netlist filename: D:\ARM\CoIDE\workspace\lcd_libnotmy\PCB\regulator_new.net
+Warning: line 2229
+   * Component VT1 value mismatch between board (Value) and netlist file ()
+Warning: line 2234
+   * Component VT3 value mismatch between board (Value) and netlist file ()
+Warning: line 2342
+   * Component VT2 value mismatch between board (Value) and netlist file ()
+SHORTED NETS:
+
+
+Net List Errors:   0
+Net List Warnings: 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------
+
+17-Jan-13  20:13                                            Page    1
+
