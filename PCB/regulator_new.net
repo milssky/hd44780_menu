@@ -2,13 +2,13 @@ ACCEL_ASCII "D:\ARM\CoIDE\workspace\lcd_libnotmy\PCB\regulator_new.net"
 
 (asciiHeader 
   (asciiVersion 3 0)
-  (timeStamp 2013 1 20 11 46 42)
+  (timeStamp 2013 1 20 13 51 11)
   (program "P-CAD 2006 Schematic" "19.02.9589")
   (copyright "Copyright © 1992-2006 Altium Limited")
   (fileAuthor "")
   (headerString "")
   (fileUnits mm)
-  (guidString "{9BCEDC7D-DC6D-4E99-A833-4D6A62F9163B}")
+  (guidString "{E55B4B00-7E17-4F9E-92E7-2C158717F15A}")
 )
 
 (library "Library_1"
@@ -2500,6 +2500,7 @@ ACCEL_ASCII "D:\ARM\CoIDE\workspace\lcd_libnotmy\PCB\regulator_new.net"
     (node "C1" "0")
   )
   (net "+3.3V"
+    (node "DD1" "3")
     (node "R2" "2")
     (node "SB3" "3")
     (node "SB1" "3")
@@ -2580,6 +2581,8 @@ ACCEL_ASCII "D:\ARM\CoIDE\workspace\lcd_libnotmy\PCB\regulator_new.net"
     (node "U1" "6")
   )
   (net "+5"
+    (node "DD1" "31")
+    (node "R7" "2")
     (node "R9" "2")
     (node "XS1" "2")
     (node "XS1" "11")
@@ -2590,7 +2593,6 @@ ACCEL_ASCII "D:\ARM\CoIDE\workspace\lcd_libnotmy\PCB\regulator_new.net"
     (node "R25" "2")
     (node "DA1" "5")
     (node "DD2" "11")
-    (node "R7" "2")
     (node "R15" "1")
     (node "C7" "0")
     (node "C8" "0")
