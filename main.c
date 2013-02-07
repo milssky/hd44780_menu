@@ -4,11 +4,14 @@
 
 #define BUT_OK GPIO_Pin_0 // PA0 for debuffing
 
-#define BUT_DOWN GPIO_Pin_14
-#define BUT_START GPIO_Pin_11
-#define BUT_BACK GPIO_Pin_12
-#define BUT_UP GPIO_Pin_13
-#define BUT_ENTER GPIO_Pin_10 // OK on PCB
+#define BUT_START GPIO_Pin_14
+
+#define BUT_UP GPIO_Pin_10
+#define BUT_DOWN GPIO_Pin_11
+
+#define BUT_ENTER GPIO_Pin_12
+#define BUT_BACK GPIO_Pin_13
+
 
 #define BUT_PORT GPIOB
 
@@ -32,7 +35,7 @@ char * utoa_divmod(int value, char *buffer);
 char* percents[] = {"0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"};
 int current_menu_position = 0; // текущее место в меню
 int need_update = 1; // флаг отрисовки меню
-char* menu_string[] = {"Power","Steps"};
+char* menu_string[] = {"Power","Impulses"};
 int menu_size = 1; //0+1 = 2 пункта
 char qbuf[5];
 int power_table[] = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50}; // период в мс прерывания таймера
@@ -53,7 +56,8 @@ int main(void)
   menu();
   EXTI_Configuration(); // вышли из меню и включили прерывания от детектора нуля
   SetTimTime(power_table[power_percents]);
-  lcd_out("Cuurent");
+  lcd_clear();
+  lcd_out("Current");
   while(1)
     {
 	  if(curr_times == impulses_count)
@@ -69,7 +73,10 @@ int main(void)
     }
 
 }
-
+/*
+ * Функция включает тактирование периферии
+ *
+ */
 void RCC_Configuration(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA |
@@ -78,7 +85,9 @@ void RCC_Configuration(void)
 	/* Get takts to GPIOs, TIM15, AFIO, EXTI */
 }
 
-/* EXTI Configuration */
+/*
+ * Настройка прерывания по внешнему источнику
+ */
 void EXTI_Configuration(void)
 {
 	EXTI_InitTypeDef EXTI_InitStructure;
@@ -89,6 +98,10 @@ void EXTI_Configuration(void)
 	EXTI_Init(&EXTI_InitStructure);
 }
 
+/*
+ * Настройка портов ввода-вывода
+ *
+ */
 void GPIO_Configuration(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -120,7 +133,9 @@ void GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
-/* NVIC Configuration */
+/*
+ * Настройка контроллера прерываний
+ */
 void NVIC_Configuration(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -132,6 +147,9 @@ void NVIC_Configuration(void)
 	NVIC_Init(&NVIC_InitStructure);
 }
 
+/*
+ * Настройка таймеров
+ */
 void TIM_Configuration(void)
 {
 
@@ -147,6 +165,9 @@ void TIM_Configuration(void)
 
 }
 
+/*
+ * Насройка АЦП на постоянное преобразование
+ */
 void ADC_Configuration(void)
 {
 	ADC_InitTypeDef ADC_InitStructure;
@@ -179,6 +200,10 @@ void ADC_Configuration(void)
 	ADC_Cmd (ADC1,ENABLE);	//enable ADC1
 }
 
+/*
+ * Функция устанавливает временной эквивалент
+ * мощности в таймер, по которому происходит включение тиристоров.
+ */
 void SetTimTime(int time)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
@@ -188,6 +213,11 @@ void SetTimTime(int time)
 	TIM_TimeBaseInit(TIM15, &TIM_TimeBaseStructure);
 }
 
+/*
+ * Обработчик прерывания по внешнему источнику.
+ * Происходит принудительный сброс ног, что эквивалентно отключению тиристоров,
+ * и запускается таймер, по прерыванию которого, эти тиристоры откроются.
+ */
 void EXTI4_IRQHandler(void)
 {
 	TIM_Cmd(TIM15, ENABLE);
@@ -195,6 +225,10 @@ void EXTI4_IRQHandler(void)
 	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
 }
 
+/*
+ * По прерыванию открываются тиристоры и считывается ТЕКУЩЕЕ показание АЦП,
+ * чтобы выловить максимум напряжения
+ */
 void TIM15_IRQHandler(void)
 {
 	GPIO_SetBits(GPIOC, GPIO_Pin_8);
@@ -204,7 +238,10 @@ void TIM15_IRQHandler(void)
 	TIM_Cmd(TIM15, DISABLE);
 }
 
-
+/*
+ * Меню. Пункты задаются в массиве вверху.
+ * Логика работы проста: каждое действие пораждает обновление экрана.
+ */
 void menu(void)
 {
 	while(check_button(BUT_START))
@@ -213,9 +250,15 @@ void menu(void)
 		{
 			lcd_clear();
 			lcd_out(menu_string[current_menu_position]);
+			lcd_set_xy(0,1);
+			itoa(power_percents,qbuf); // debuging
+			lcd_out(qbuf);
+			lcd_set_xy(3,1);
+			itoa(impulses_count,qbuf);
+			lcd_out(qbuf);
 			need_update = 0;
 		}
-		if(check_button(BUT_DOWN) && (in_menu == 1))
+		if(!check_button(BUT_DOWN) && (in_menu == 1))
 		{
 			current_menu_position++;
 			if(current_menu_position > menu_size)
@@ -225,7 +268,7 @@ void menu(void)
 			need_update = 1;
 		}
 
-		if(check_button(BUT_UP) && (in_menu == 1))
+		if(!check_button(BUT_UP) && (in_menu == 1))
 			{
 				current_menu_position--;
 				if(current_menu_position < 0)
@@ -235,21 +278,24 @@ void menu(void)
 				need_update = 1;
 			}
 
-		if(!GPIO_ReadInputDataBit(GPIOB, BUT_ENTER) && (in_menu == 1))
+		if(!check_button(BUT_ENTER) && (in_menu == 1))
 			{
 				lcd_clear();
 				switch(current_menu_position)
 				{
 				case 0: set_power();
+						break;
 				case 1: set_impulses();
+						break;
 				}
+				need_update = 1;
 
 			}
-		/*if(!GPIO_ReadInputDataBit(GPIOB, BUT_BACK) && (in_menu == 1))
+		if(!check_button(BUT_BACK) && (in_menu == 1))
 		{
 			need_update = 1;
 			current_menu_position = 0;
-		}*/
+		}
 	}
 }
 
@@ -274,19 +320,28 @@ int check_button(int button)
 	}
 }
 
+/*
+ *  переданный параметр переводим в микросекунды и домножаем на частоту,
+ *  с которой работает контроллер. В первом приближении должны получить нужную задержку
+ */
 void delay_ms(int msec)
 {
-	for( ; msec*1000*8 < 0; msec--); // при 8 МГц хех
+	for( ; msec*1000*8 > 0; msec--); // при 8 МГц хех
 }
 
+/*
+ * Страница меню. отвечающая за установку мощности.
+ * Логика работы такая же, как у функции menu()
+ */
 int set_power(void)
 {
 	int need_up = 1;
 	int i = 0;
+	int flag = 0;
 	in_menu = 0;
 	lcd_clear();
 	lcd_out("Percents");
-	while(GPIO_ReadInputDataBit(BUT_PORT, BUT_OK))
+	while(flag == 0)
 	{
 		if(need_up == 1)
 		{
@@ -295,7 +350,7 @@ int set_power(void)
 			need_up = 0;
 		}
 
-		if(GPIO_ReadInputDataBit(GPIOA, BUT_OK))
+		if(!check_button(BUT_UP))
 		{
 			i++;
 			if(i > 9)
@@ -304,19 +359,44 @@ int set_power(void)
 			}
 			need_up = 1;
 		}
+		if(!check_button(BUT_DOWN))
+		{
+			i--;
+			if(i < 0)
+			{
+				i = 9;
+			}
+			need_up = 1;
+		}
+		if(!check_button(BUT_ENTER))
+		{
+			delay_ms(1000);
+			if(!check_button(BUT_ENTER))
+			{
+				flag = 1;
+				lcd_clear();
+				delay_ms(1000);
+			}
+		}
 	}
 	power_percents = i;
+	in_menu = 1;
 	return i;
 }
 
+/*
+ * Страница меню, отвечающая за установку количества импульсов.
+ * Логика работы такая же, как у set_power() и menu()
+ */
 int set_impulses(void)
 {
 	int need_up = 1;
 	int i = 0; // impulse counter
 	in_menu = 0;
+	int flag = 0;
 	lcd_clear();
 	lcd_out("Impulses");
-	while(GPIO_ReadInputDataBit(BUT_PORT, BUT_OK))
+	while(flag == 0)
 	{
 		if(need_up == 1)
 		{
@@ -326,7 +406,7 @@ int set_impulses(void)
 			need_up = 0;
 		}
 
-		if(GPIO_ReadInputDataBit(GPIOA, BUT_OK))
+		if(!check_button(BUT_UP))
 		{
 			i++;
 			if(i > 99)
@@ -335,12 +415,40 @@ int set_impulses(void)
 			}
 			need_up = 1;
 		}
+
+		if(!check_button(BUT_DOWN))
+		{
+			i--;
+			if(i < 0)
+			{
+				i = 99;
+			}
+			need_up = 1;
+		}
+
+		if(!check_button(BUT_ENTER))
+				{
+					delay_ms(1000);
+					if(!check_button(BUT_ENTER))
+					{
+						flag = 1;
+						lcd_clear();
+						delay_ms(1000);
+					}
+				}
 	}
+	in_menu = 1;
 	impulses_count = i;
 	return i;
 
 }
 
+/*
+ * Реализация стандартной функции itoa под arm
+ * Требует объявленного char* массива в глобальной секции.
+ * Разивает число на разряды и находит ASCII-эквивалент числа в разряде.
+ * Результат записывается в глобальный char* массив
+ */
 void itoa(int n, char* buf)
 {
 register int r, k;

@@ -3,8 +3,8 @@
 
 /////should be defined by user /////
 #define LCD_PORT GPIOC
-#define LCD_CD 0
-#define LCD_EN 1		//Строб для записи. Сначала подаем 1, затем 0.
+#define LCD_CD 1
+#define LCD_EN 0		//Строб для записи. Сначала подаем 1, затем 0.
 #define LCD_DB4 2		//тип передачи данные-1 команда-0
 #define LCD_DB5 3
 #define LCD_DB6 4
