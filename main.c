@@ -359,6 +359,7 @@ int set_power(void)
 			}
 			need_up = 1;
 		}
+
 		if(!check_button(BUT_DOWN))
 		{
 			i--;
@@ -368,6 +369,7 @@ int set_power(void)
 			}
 			need_up = 1;
 		}
+
 		if(!check_button(BUT_ENTER))
 		{
 			delay_ms(1000);
@@ -377,6 +379,13 @@ int set_power(void)
 				lcd_clear();
 				delay_ms(1000);
 			}
+		}
+
+		if(!check_button(BUT_BACK))
+		{
+			power_percents = 0;
+			in_menu = 1;
+			return 0;
 		}
 	}
 	power_percents = i;
@@ -427,15 +436,22 @@ int set_impulses(void)
 		}
 
 		if(!check_button(BUT_ENTER))
-				{
-					delay_ms(1000);
-					if(!check_button(BUT_ENTER))
-					{
-						flag = 1;
-						lcd_clear();
-						delay_ms(1000);
-					}
-				}
+		{
+			delay_ms(1000);
+			if(!check_button(BUT_ENTER))
+			{
+				flag = 1;
+				lcd_clear();
+				delay_ms(1000);
+			}
+		}
+
+		if(!check_button(BUT_BACK))
+		{
+			impulses_count = 0;
+			in_menu = 1;
+			return 0;
+		}
 	}
 	in_menu = 1;
 	impulses_count = i;
