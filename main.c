@@ -24,6 +24,7 @@ void RCC_Configuration(void);
 void ADC_Configuration(void);
 void SetTimTime(int time);
 void menu(void);
+void okey(void);
 int set_power(void);
 int set_impulses(void);
 int check_button(int button);
@@ -38,7 +39,7 @@ int need_update = 1; // флаг отрисовки меню
 char* menu_string[] = {"Power","Impulses"};
 int menu_size = 1; //0+1 = 2 пункта
 char qbuf[5];
-int power_table[] = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50}; // период в мс прерывания таймера
+int power_table[] = {50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0}; // период в мс прерывания таймера
 int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
@@ -54,6 +55,7 @@ int main(void)
   lcd_init(); //Инициализируем дисплей
   lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK); //Включаем курсор и мигалку
   menu();
+  okey();
   EXTI_Configuration(); // вышли из меню и включили прерывания от детектора нуля
   SetTimTime(power_table[power_percents]);
   lcd_clear();
@@ -299,6 +301,20 @@ void menu(void)
 	}
 }
 
+void okey(void)
+{
+	lcd_clear();
+	itoa(impulses_count, qbuf);
+	lcd_out("Perc:");
+	lcd_out(qbuf);
+	lcd_set_xy(0,1);
+	lcd_out("Imp:");
+	lcd_out(percents[power_percents]);
+	while(check_button(BUT_START))
+	{
+
+	}
+}
 int check_button(int button)
 {
 	/*
