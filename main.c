@@ -224,7 +224,7 @@ void EXTI4_IRQHandler(void)
 {
 	TIM_Cmd(TIM15, ENABLE);
 	GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+	GPIO_SetBits(GPIOC, GPIO_Pin_9);
 }
 
 /*
@@ -234,7 +234,7 @@ void EXTI4_IRQHandler(void)
 void TIM15_IRQHandler(void)
 {
 	GPIO_SetBits(GPIOC, GPIO_Pin_8);
-	GPIO_SetBits(GPIOC, GPIO_Pin_9);
+	GPIO_SetReset(GPIOC, GPIO_Pin_9);
 	curr_times++;
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
 	TIM_Cmd(TIM15, DISABLE);
