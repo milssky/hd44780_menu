@@ -2,17 +2,13 @@
 #include "hd44780_driver\hd44780_driver.h"
 #include "stm32f10x_rcc.h"
 
-#define BUT_OK GPIO_Pin_0 // PA0 for debuffing
+//#define BUT_OK GPIO_Pin_0 // PA0 for debuffing
 
 #define BUT_START GPIO_Pin_14
-
 #define BUT_UP GPIO_Pin_10
 #define BUT_DOWN GPIO_Pin_11
-
 #define BUT_ENTER GPIO_Pin_12
 #define BUT_BACK GPIO_Pin_13
-
-
 #define BUT_PORT GPIOB
 
 #define ADC_PIN GPIO_Pin_1
@@ -21,6 +17,7 @@ void GPIO_Configuration(void);
 void EXTI_Configuration(void);
 void NVIC_Configuration(void);
 void RCC_Configuration(void);
+void TIM_Configuration(void);
 void ADC_Configuration(void);
 void SetTimTime(int time);
 void menu(void);
@@ -31,15 +28,14 @@ int check_button(int button);
 void delay_ms(int msec);
 void itoa(int n, char* buf);
 
-char * utoa_divmod(int value, char *buffer);
-
 char* percents[] = {"0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"};
-int current_menu_position = 0; // текущее место в меню
-int need_update = 1; // флаг отрисовки меню
+int current_menu_position = 0;
+int need_update = 1;
+unsigned char flag=0;
 char* menu_string[] = {"Power","Impulses"};
-int menu_size = 1; //0+1 = 2 пункта
+int menu_size = 1;
 char qbuf[5];
-int power_table[] = {50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0}; // период в мс прерывания таймера
+int power_table[] = {50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
 int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
@@ -52,31 +48,46 @@ int main(void)
   RCC_Configuration();
   GPIO_Configuration();
   NVIC_Configuration();
-  lcd_init(); //Инициализируем дисплей
-  lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK); //Включаем курсор и мигалку
+  TIM_Configuration();
+  ADC_Configuration();
+  GPIO_SetBits(GPIOC, GPIO_Pin_8);
+  GPIO_SetBits(GPIOC, GPIO_Pin_9);
+  lcd_init();
+  lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK);
   menu();
   okey();
-  EXTI_Configuration(); // вышли из меню и включили прерывания от детектора нуля
+
+  EXTI_Configuration();
   SetTimTime(power_table[power_percents]);
   lcd_clear();
   lcd_out("Current");
+
   while(1)
     {
-	  if(curr_times == impulses_count)
+	  /*if(curr_times == impulses_count)
 	  {
 		  EXTI_DeInit();
-	  }
+	  }*/
 	  lcd_set_xy(0,1);
-	  adc_current = ADC_GetConversionValue(ADC1);
-	  itoa(adc_current,qbuf);
-	  lcd_out(qbuf);
-
+	  lcd_out("%");
+	  //adc_current = ADC_GetConversionValue(ADC1);
+	  //itoa(adc_current,qbuf);
+	  //lcd_out(qbuf);
+	  if(flag)
+	      {
+	        GPIO_SetBits(GPIOC, GPIO_Pin_8);
+	        GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+	      }
+	      else
+	      {
+	        GPIO_SetBits(GPIOC, GPIO_Pin_9);
+	        GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	      }
 
     }
 
 }
 /*
- * Функция включает тактирование периферии
  *
  */
 void RCC_Configuration(void)
@@ -88,11 +99,12 @@ void RCC_Configuration(void)
 }
 
 /*
- * Настройка прерывания по внешнему источнику
+ *
  */
 void EXTI_Configuration(void)
 {
 	EXTI_InitTypeDef EXTI_InitStructure;
+	/* Configure EXTI4 line */
 	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
@@ -101,15 +113,13 @@ void EXTI_Configuration(void)
 }
 
 /*
- * Настройка портов ввода-вывода
  *
  */
 void GPIO_Configuration(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	// настройка кнопки вниз и вверх
-	GPIO_InitStructure.GPIO_Pin = BUT_DOWN | BUT_UP | BUT_BACK | BUT_OK | BUT_ENTER |BUT_START;
+	GPIO_InitStructure.GPIO_Pin = BUT_DOWN | BUT_UP | BUT_BACK | BUT_ENTER |BUT_START;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
@@ -118,10 +128,6 @@ void GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Pin = BUT_OK;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/*The EXTI in. PA4 */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
@@ -136,39 +142,44 @@ void GPIO_Configuration(void)
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 /*
- * Настройка контроллера прерываний
+ *
  */
 void NVIC_Configuration(void)
 {
+	NVIC_InitTypeDef   NVIC_InitStructure;
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	NVIC_InitTypeDef NVIC_InitStructure;
+	/* Enable and set EXTI4 Interrupt to the lowest priority */
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 }
 
 /*
- * Настройка таймеров
+ *
  */
 void TIM_Configuration(void)
 {
-
-
 	/* Time base configuration */
-	TIM_TimeBaseStructure.TIM_Period = 5; // мощность по умолчанию = 10% (50 мс (период сети) * 0.1).
-	TIM_TimeBaseStructure.TIM_Prescaler = SystemCoreClock / 1000 - 1; // прерывание раз в миллисекунду: 8МГц / 8000 = 1 кГц = 1 мс. Минус стоит, т.к. Prescaler учитываеся как Prescaler + 1
+	TIM_TimeBaseStructure.TIM_Period = 5;
+	TIM_TimeBaseStructure.TIM_Prescaler = SystemCoreClock / 1000 - 1;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_ARRPreloadConfig(TIM15, ENABLE);
+	TIM_ARRPreloadConfig(TIM2, ENABLE);
 	/* Overflow interrupt  */
-	TIM_ITConfig(TIM15,TIM_IT_Update,ENABLE);
+	TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
 }
 
 /*
- * Насройка АЦП на постоянное преобразование
+ *
  */
 void ADC_Configuration(void)
 {
@@ -203,8 +214,7 @@ void ADC_Configuration(void)
 }
 
 /*
- * Функция устанавливает временной эквивалент
- * мощности в таймер, по которому происходит включение тиристоров.
+ *
  */
 void SetTimTime(int time)
 {
@@ -212,37 +222,31 @@ void SetTimTime(int time)
 
 	/* Time base configuration */
 	TIM_TimeBaseStructure.TIM_Period = time;
-	TIM_TimeBaseInit(TIM15, &TIM_TimeBaseStructure);
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 }
 
 /*
- * Обработчик прерывания по внешнему источнику.
- * Происходит принудительный сброс ног, что эквивалентно отключению тиристоров,
- * и запускается таймер, по прерыванию которого, эти тиристоры откроются.
+ *
  */
 void EXTI4_IRQHandler(void)
 {
-	TIM_Cmd(TIM15, ENABLE);
-	GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-	GPIO_SetBits(GPIOC, GPIO_Pin_9);
+	TIM_Cmd(TIM2, ENABLE);
+	EXTI_ClearITPendingBit(EXTI_Line4);
 }
 
 /*
- * По прерыванию открываются тиристоры и считывается ТЕКУЩЕЕ показание АЦП,
- * чтобы выловить максимум напряжения
+ *
  */
-void TIM15_IRQHandler(void)
+void TIM2_IRQHandler(void)
 {
-	GPIO_SetBits(GPIOC, GPIO_Pin_8);
-	GPIO_SetReset(GPIOC, GPIO_Pin_9);
-	curr_times++;
+	flag ^= 1;
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
-	TIM_Cmd(TIM15, DISABLE);
+	TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+	TIM_Cmd(TIM2, DISABLE);
 }
 
 /*
- * Меню. Пункты задаются в массиве вверху.
- * Логика работы проста: каждое действие пораждает обновление экрана.
+ *
  */
 void menu(void)
 {
@@ -305,11 +309,12 @@ void okey(void)
 {
 	lcd_clear();
 	itoa(impulses_count, qbuf);
-	lcd_out("Perc:");
+	lcd_out("Imp:");
 	lcd_out(qbuf);
 	lcd_set_xy(0,1);
-	lcd_out("Imp:");
-	lcd_out(percents[power_percents]);
+	lcd_out("Perc:");
+	itoa(power_table[power_percents],qbuf);
+	lcd_out(qbuf);
 	while(check_button(BUT_START))
 	{
 
@@ -318,9 +323,7 @@ void okey(void)
 int check_button(int button)
 {
 	/*
-	 * Логика следующая: если кнопка button нажата,
-	 * то ждем 10 мс и снова проверяем ее на нажатие, если статус ее не изменился,
-	 * то выставляем флаг 1, показывающий, что кнопка нажата
+	 *
 	 */
 	if(!GPIO_ReadInputDataBit(BUT_PORT ,button))
 	{
@@ -337,17 +340,15 @@ int check_button(int button)
 }
 
 /*
- *  переданный параметр переводим в микросекунды и домножаем на частоту,
- *  с которой работает контроллер. В первом приближении должны получить нужную задержку
+ *
  */
 void delay_ms(int msec)
 {
-	for( ; msec*1000*8 > 0; msec--); // при 8 МГц хех
+	for( ; msec*1000*8 > 0; msec--); // ГЇГ°ГЁ 8 ГЊГѓГ¶ ГµГҐГµ
 }
 
 /*
- * Страница меню. отвечающая за установку мощности.
- * Логика работы такая же, как у функции menu()
+ *
  */
 int set_power(void)
 {
@@ -410,8 +411,7 @@ int set_power(void)
 }
 
 /*
- * Страница меню, отвечающая за установку количества импульсов.
- * Логика работы такая же, как у set_power() и menu()
+ *
  */
 int set_impulses(void)
 {
@@ -476,10 +476,7 @@ int set_impulses(void)
 }
 
 /*
- * Реализация стандартной функции itoa под arm
- * Требует объявленного char* массива в глобальной секции.
- * Разивает число на разряды и находит ASCII-эквивалент числа в разряде.
- * Результат записывается в глобальный char* массив
+ *
  */
 void itoa(int n, char* buf)
 {
