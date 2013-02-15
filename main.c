@@ -41,6 +41,7 @@ int power_percents = 0;
 int impulses_count = 0;
 int curr_times = 0;
 int adc_current;
+
 TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
 int main(void)
@@ -50,39 +51,42 @@ int main(void)
   NVIC_Configuration();
   TIM_Configuration();
   ADC_Configuration();
-  GPIO_SetBits(GPIOC, GPIO_Pin_8);
-  GPIO_SetBits(GPIOC, GPIO_Pin_9);
+  /*GPIO_SetBits(GPIOC, GPIO_Pin_8);
+  GPIO_SetBits(GPIOC, GPIO_Pin_9);*/
   lcd_init();
   lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK);
   menu();
   okey();
-
-  EXTI_Configuration();
   SetTimTime(power_table[power_percents]);
+  EXTI_Configuration();
   lcd_clear();
   lcd_out("Current");
-
+  lcd_set_xy(0,1);
   while(1)
     {
-	  /*if(curr_times == impulses_count)
+	  /*if (curr_times != 5)
 	  {
-		  EXTI_DeInit();
+		  adc_current += ADC_GetConversionValue(ADC1);
+		  curr_times++;
+	  } else {
+		  itoa(adc_current,qbuf);
+		  lcd_out(qbuf);
+		  curr_times = 0;
 	  }*/
-	  lcd_set_xy(0,1);
-	  lcd_out("%");
-	  //adc_current = ADC_GetConversionValue(ADC1);
-	  //itoa(adc_current,qbuf);
-	  //lcd_out(qbuf);
-	  if(flag)
+
+	  if(flag) // произошел переход через ноль и дождались конца отсчета таймера
 	      {
 	        GPIO_SetBits(GPIOC, GPIO_Pin_8);
-	        GPIO_ResetBits(GPIOC, GPIO_Pin_9);
 	      }
 	      else
 	      {
-	        GPIO_SetBits(GPIOC, GPIO_Pin_9);
 	        GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+
 	      }
+	  if (!check_button(BUT_START)) // нажали второй раз на старт и выключили сварку
+	  {
+		  EXTI_DeInit();
+	  }
 
     }
 
@@ -93,9 +97,9 @@ int main(void)
 void RCC_Configuration(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOA |
-							RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM15 |
-							RCC_APB2Periph_AFIO, ENABLE);
+							RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
 	/* Get takts to GPIOs, TIM15, AFIO, EXTI */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 }
 
 /*
@@ -107,7 +111,7 @@ void EXTI_Configuration(void)
 	/* Configure EXTI4 line */
 	EXTI_InitStructure.EXTI_Line = EXTI_Line4;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
 }
@@ -218,7 +222,7 @@ void ADC_Configuration(void)
  */
 void SetTimTime(int time)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
 
 	/* Time base configuration */
 	TIM_TimeBaseStructure.TIM_Period = time;
@@ -241,8 +245,9 @@ void TIM2_IRQHandler(void)
 {
 	flag ^= 1;
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
-	TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 	TIM_Cmd(TIM2, DISABLE);
+	TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+
 }
 
 /*
