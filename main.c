@@ -26,6 +26,7 @@ int set_power(void);
 int set_impulses(void);
 int check_button(int button);
 void delay_ms(int msec);
+void delay_us(int us);
 void itoa(int n, char* buf);
 
 char* percents[] = {"0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"};
@@ -74,15 +75,6 @@ int main(void)
 		  curr_times = 0;
 	  }*/
 
-	  if(flag) // произошел переход через ноль и дождались конца отсчета таймера
-	      {
-	        GPIO_SetBits(GPIOC, GPIO_Pin_8);
-	      }
-	      else
-	      {
-	        GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-
-	      }
 	  if (!check_button(BUT_START)) // нажали второй раз на старт и выключили сварку
 	  {
 		  EXTI_DeInit();
@@ -171,8 +163,8 @@ void NVIC_Configuration(void)
 void TIM_Configuration(void)
 {
 	/* Time base configuration */
-	TIM_TimeBaseStructure.TIM_Period = 5;
-	TIM_TimeBaseStructure.TIM_Prescaler = SystemCoreClock / 1000 - 1;
+	TIM_TimeBaseStructure.TIM_Period = 8-1;
+	TIM_TimeBaseStructure.TIM_Prescaler = 1000 - 1;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_ARRPreloadConfig(TIM2, ENABLE);
@@ -235,6 +227,9 @@ void SetTimTime(int time)
 void EXTI4_IRQHandler(void)
 {
 	TIM_Cmd(TIM2, ENABLE);
+	GPIO_SetBits(GPIOC, GPIO_Pin_9);
+	delay_us(250);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
 	EXTI_ClearITPendingBit(EXTI_Line4);
 }
 
@@ -243,10 +238,18 @@ void EXTI4_IRQHandler(void)
  */
 void TIM2_IRQHandler(void)
 {
-	flag ^= 1;
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
+	flag = 1;
+	//ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
 	TIM_Cmd(TIM2, DISABLE);
-	TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+
+    GPIO_SetBits(GPIOC, GPIO_Pin_8);
+    delay_us(500);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    delay_us(500);
+    GPIO_SetBits(GPIOC, GPIO_Pin_8);
+    delay_us(500);
+    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+    TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 
 }
 
@@ -507,4 +510,9 @@ int next = 0;
          }
    }
    buf[next] = 0;
+}
+
+void delay_us(int us)
+{
+	for( ;us*8 > 0; us-- );
 }
