@@ -24,6 +24,7 @@ void menu(void);
 void okey(void);
 int set_power(void);
 int set_impulses(void);
+int set_pause(void);
 int check_button(int button);
 void delay_ms(int msec);
 void delay_us(int us);
@@ -33,13 +34,17 @@ char* percents[] = {"0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","
 int current_menu_position = 0;
 int need_update = 1;
 unsigned char flag=0;
-char* menu_string[] = {"Power","Impulses"};
-int menu_size = 1;
+char* menu_string[] = {"Power","Impulses","Pause"};
+int menu_size = 2;
 char qbuf[5];
-int power_table[] = {50, 45, 40, 35, 30, 25, 20, 15, 10, 5, 0};
+int power_table[] = {120, 80, 70, 65, 40, 45, 20, 15, 10, 4, 2};
 int in_menu = 1;
 int power_percents = 0;
 int impulses_count = 0;
+int pause = 0;
+int in_pause = 0;
+int current_impulse = 0;
+int current_pause = 0;
 int curr_times = 0;
 int adc_current;
 
@@ -52,8 +57,8 @@ int main(void)
   NVIC_Configuration();
   TIM_Configuration();
   ADC_Configuration();
-  /*GPIO_SetBits(GPIOC, GPIO_Pin_8);
-  GPIO_SetBits(GPIOC, GPIO_Pin_9);*/
+  GPIO_SetBits(GPIOC, GPIO_Pin_8);
+  /*GPIO_SetBits(GPIOC, GPIO_Pin_9);*/
   lcd_init();
   lcd_set_state(LCD_ENABLE, CURSOR_ENABLE, BLINK);
   menu();
@@ -75,10 +80,21 @@ int main(void)
 		  curr_times = 0;
 	  }*/
 
-	  if (!check_button(BUT_START)) // нажали второй раз на старт и выключили сварку
+	  if(current_impulse == impulses_count*2)
+	  {
+		  current_impulse = 0;
+		  in_pause = 1;
+	  }
+	  if(current_pause == pause*2)
+	  {
+		  current_pause = 0;
+		  in_pause = 0;
+
+	  }
+	  /*if (!check_button(BUT_START)) // нажали второй раз на старт и выключили сварку
 	  {
 		  EXTI_DeInit();
-	  }
+	  }*/
 
     }
 
@@ -227,6 +243,14 @@ void SetTimTime(int time)
 void EXTI4_IRQHandler(void)
 {
 	TIM_Cmd(TIM2, ENABLE);
+	if(in_pause == 0)
+	{
+		current_impulse++;
+	}
+	if(in_pause == 1)
+	{
+		current_pause++;
+	}
 	GPIO_SetBits(GPIOC, GPIO_Pin_9);
 	delay_us(250);
 	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
@@ -241,14 +265,18 @@ void TIM2_IRQHandler(void)
 	flag = 1;
 	//ADC_SoftwareStartConvCmd(ADC1, ENABLE);	// start conversion (will be endless as we are in continuous mode). we started adc conversion while thyristor opened.
 	TIM_Cmd(TIM2, DISABLE);
-
-    GPIO_SetBits(GPIOC, GPIO_Pin_8);
-    delay_us(500);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
-    delay_us(500);
-    GPIO_SetBits(GPIOC, GPIO_Pin_8);
-    delay_us(500);
-    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	if(in_pause != 0)
+	{
+	    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	    delay_us(500);
+	    GPIO_SetBits(GPIOC, GPIO_Pin_8);
+	    delay_us(500);
+	    GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	    delay_us(500);
+	    GPIO_SetBits(GPIOC, GPIO_Pin_8);
+	} else {
+		GPIO_SetBits(GPIOC, GPIO_Pin_8);
+	}
     TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 
 }
@@ -269,6 +297,9 @@ void menu(void)
 			lcd_out(qbuf);
 			lcd_set_xy(3,1);
 			itoa(impulses_count,qbuf);
+			lcd_out(qbuf);
+			lcd_set_xy(6,1);
+			itoa(pause,qbuf);
 			lcd_out(qbuf);
 			need_update = 0;
 		}
@@ -301,6 +332,8 @@ void menu(void)
 						break;
 				case 1: set_impulses();
 						break;
+				case 2: set_pause();
+						break;
 				}
 				need_update = 1;
 
@@ -321,8 +354,7 @@ void okey(void)
 	lcd_out(qbuf);
 	lcd_set_xy(0,1);
 	lcd_out("Perc:");
-	itoa(power_table[power_percents],qbuf);
-	lcd_out(qbuf);
+	lcd_out(percents[power_percents]);
 	while(check_button(BUT_START))
 	{
 
@@ -483,6 +515,67 @@ int set_impulses(void)
 
 }
 
+
+int set_pause(void)
+{
+	int need_up = 1;
+	int i = 0; // impulse counter
+	in_menu = 0;
+	int flag = 0;
+	lcd_clear();
+	lcd_out("Pause");
+	while(flag == 0)
+	{
+		if(need_up == 1)
+		{
+			lcd_set_xy(3,1);
+			itoa(i,qbuf);
+			lcd_out(qbuf);
+			need_up = 0;
+		}
+
+		if(!check_button(BUT_UP))
+		{
+			i++;
+			if(i > 99)
+			{
+				i = 0;
+			}
+			need_up = 1;
+		}
+
+		if(!check_button(BUT_DOWN))
+		{
+			i--;
+			if(i < 0)
+			{
+				i = 99;
+			}
+			need_up = 1;
+		}
+
+		if(!check_button(BUT_ENTER))
+		{
+			delay_ms(1000);
+			if(!check_button(BUT_ENTER))
+			{
+				flag = 1;
+				lcd_clear();
+				delay_ms(1000);
+			}
+		}
+
+		if(!check_button(BUT_BACK))
+		{
+			impulses_count = 0;
+			in_menu = 1;
+			return 0;
+		}
+	}
+	in_menu = 1;
+	pause = i;
+	return i;
+}
 /*
  *
  */
